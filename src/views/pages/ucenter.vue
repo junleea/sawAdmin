@@ -8,28 +8,16 @@
                 </div>
                 <div class="user-info">
                     <div class="info-name">{{ name }}</div>
-                    <div class="info-desc">
-                        <span>@lin-xin</span>
-                        <el-divider direction="vertical" />
-                        <el-link href="https://lin-xin.gitee.io" target="_blank">lin-xin.gitee.io</el-link>
-                    </div>
-                    <div class="info-desc">FE Developer</div>
-                    <div class="info-icon">
-                        <a href="https://github.com/lin-xin" target="_blank"> <i class="el-icon-lx-github-fill"></i></a>
-                        <i class="el-icon-lx-qq-fill"></i>
-                        <i class="el-icon-lx-facebook-fill"></i>
-                        <i class="el-icon-lx-twitter-fill"></i>
-                    </div>
                 </div>
                 <div class="user-footer">
                     <div class="user-footer-item">
-                        <el-statistic title="Follower" :value="1800" />
+                        <el-statistic title="提问数" :value="1800" />
                     </div>
                     <div class="user-footer-item">
-                        <el-statistic title="Following" :value="666" />
+                        <el-statistic title="会话数" :value="666" />
                     </div>
                     <div class="user-footer-item">
-                        <el-statistic title="Total Post" :value="888" />
+                        <el-statistic title="总计" :value="888" />
                     </div>
                 </div>
             </el-card>
@@ -39,9 +27,9 @@
                 :body-style="{ padding: '20px 50px', height: '100%', boxSizing: 'border-box' }"
             >
                 <el-tabs tab-position="left" v-model="activeName">
-                    <el-tab-pane name="label1" label="消息通知" class="user-tabpane">
+                    <!-- <el-tab-pane name="label1" label="消息通知" class="user-tabpane">
                         <TabsComp />
-                    </el-tab-pane>
+                    </el-tab-pane> -->
                     <el-tab-pane name="label2" label="我的头像" class="user-tabpane">
                         <div class="crop-wrap" v-if="activeName === 'label2'">
                             <vueCropper
@@ -72,24 +60,13 @@
                                 <el-input type="password" v-model="form.new1"></el-input>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" @click="onSubmit">保存</el-button>
+                                <el-button type="primary" @click="resetPassword ">保存</el-button>
                             </el-form-item>
+                            <el-link type="primary" @click="reset_password()">忘记密码？使用验证码重置</el-link>
                         </el-form>
                     </el-tab-pane>
-                    <el-tab-pane name="label4" label="赞赏作者" class="user-tabpane">
-                        <div class="plugins-tips">
-                            如果该框架
-                            <el-link href="https://github.com/lin-xin/vue-manage-system" target="_blank"
-                                >vue-manage-system</el-link
-                            >
-                            对你有帮助，那就请作者喝杯饮料吧！<el-icon>
-                                <ColdDrink />
-                            </el-icon>
-                            加微信号 linxin_20 探讨问题。
-                        </div>
-                        <div>
-                            <img src="https://lin-xin.gitee.io/images/weixin.jpg" />
-                        </div>
+                    <el-tab-pane name="label4"  v-if="isUserInfoLoaded" label="详细信息" class="user-tabpane">
+                        <TableEdit :form-data="userInfo" :options="options_edit" :edit="true" :update="updateUserInfo" />
                     </el-tab-pane>
                 </el-tabs>
             </el-card>
@@ -103,6 +80,15 @@ import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import avatar from '@/assets/img/img.jpg';
 import TabsComp from '../element/tabs.vue';
+import {GetUserInfoService} from "@/api/user";
+import { UploadFileService } from "@/api/tool";
+import { UserInfo } from '@/types/user';
+import { FormOption, FormOptionList } from '@/types/form-option';
+import { avatarEmits, ElMessage } from 'element-plus';
+import TableEdit from '@/components/table-edit.vue';
+import {genResetPassword} from "@/api/user";
+import {updateUserInfoService} from "@/api/user";
+import { useRouter } from "vue-router";
 
 const name = localStorage.getItem('ms_username');
 const form = reactive({
@@ -111,17 +97,31 @@ const form = reactive({
     old: '',
 });
 const onSubmit = () => {};
+const userInfo = ref<UserInfo>({});
+const isUserInfoLoaded = ref(false);
 
-const activeName = ref('label1');
-
-const avatarImg = ref(avatar);
-const imgSrc = ref(avatar);
+const activeName = ref('label2');
+const router = useRouter();
+const avatarImg = ref('');
+const imgSrc = ref('');
 const cropImg = ref('');
 const cropper: any = ref();
+
+const reset_password = () => {
+    localStorage.removeItem("ms_username");
+    router.push('/reset-pwd');
+};
 
 const setImage = (e: any) => {
     const file = e.target.files[0];
     if (!file.type.includes('image/')) {
+        ElMessage.error('请选择图片文件');
+        return;
+    }
+        // 可选：检查文件大小
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+        console.error('文件大小超过限制');
         return;
     }
     const reader = new FileReader();
@@ -132,12 +132,147 @@ const setImage = (e: any) => {
     reader.readAsDataURL(file);
 };
 
+const updateUserInfo = async (data: any) => {
+    let result ={}
+      try{
+        let req={};
+        req.token=localStorage.getItem("token");
+        //修改后的数据
+        req.id = data.ID;
+        req.name = data.Name;
+        req.age = data.Age;
+        req.gender = data.Gender;
+        req.password = data.Password;
+        req.email = data.Email;
+        req.avatar = data.Avatar;
+        req.Role = data.Role;
+        result = await updateUserInfoService(req)
+        if (result.code === 0) {
+          ElMessage.success("更新成功");
+          this.updateDialogVisible = false;
+        } else {
+          ElMessage.error("更新失败");
+        }
+
+      }catch(e){
+        console.log(e);
+      }
+};
+
+const resetPassword = async () =>{
+    let req={
+        old_password: form.old,
+        new_password: form.new1,
+        email: userInfo.value.Email,
+        type:1
+    }
+    try{
+        let result = await genResetPassword(req);
+        if (result.code === 0) {
+            //重置成功，返回新token
+            if (result.data.token) {
+                localStorage.setItem('token', result.data.token);
+                globalData.token = result.data.token;
+                ElMessage.success('重置密码成功');
+            }
+        } else {
+            ElMessage.error(result.msg);
+        }
+    }catch(e){
+        console.log(e)
+    }
+
+};
+
+//编辑弹窗
+let options_edit = ref<FormOption>({
+    labelWidth: '100px',
+    span: 12,
+    list: [
+        // {prop: 'Avatar',label: '头像', type: 'input', required: false},
+        { type: 'input', label: '用户ID', prop: 'ID', required: true,disabled:true },
+        { type: 'input', label: '用户名', prop: 'Name', required: true },
+        { type: 'input', label: '年龄', prop: 'Age', required: false },
+        { type: 'input', label: '密码', prop: 'Password', required: false,disabled:true  },
+        { type: 'input', label: '邮箱', prop: 'Email', required: true,disabled:true },
+        { type: 'input', label: '性别', prop: 'Gender', required: false },
+        //select 选择框,可选择admin与user两种角色
+        { type: 'select', label: '角色', prop: 'Role', opts: [{label:"管理员",value:"admin"},{label:"普通用户",value:"user"}], required: false,disabled:true },
+
+        { type: 'input', label: '注册时间', prop: 'CreatedAt', required: false,disabled:true  },
+        { type: 'input', label: '上次修改时间', prop: 'UpdatedAt', required: false,disabled:true },
+    ]
+})
+
+const GetMyUserInfo = async () => {
+    let req = {
+        token: localStorage.getItem('token'),
+        id: localStorage.getItem('userId')
+    };
+    try{
+        let result = await GetUserInfoService(req);
+        if (result.code == 0) {
+            avatarImg.value = result.data.Avatar == '' ? avatar : result.data.Avatar;
+            imgSrc.value = avatarImg.value;
+            userInfo.value = result.data;
+            userInfo.value.Password = '**********';
+        }else{
+            ElMessage.error(result.msg);
+        }
+        isUserInfoLoaded.value = true;
+    }catch(e){
+        console.log(e);
+    }
+};
+GetMyUserInfo();
+
 const cropImage = () => {
     cropImg.value = cropper.value?.getCroppedCanvas().toDataURL();
 };
 
-const saveAvatar = () => {
-    avatarImg.value = cropImg.value;
+// Data URL 转 File 对象的函数
+const dataURLtoFile = (dataurl, filename) => {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)?.[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+};
+
+
+const saveAvatar =async () => {
+    let token = localStorage.getItem('token');
+        avatarImg.value = cropImg.value;
+        let formData = new FormData();
+        //文件
+        let file= dataURLtoFile(imgSrc.value, 'avatar.jpg');
+
+        formData.append('file', file);
+        //console.log("add file: " + this.file);
+        formData.append('upload_type', "1");
+        formData.append('md5',  "");
+        formData.append('auth_type', "public");
+        //console.log("formData:",formData);
+
+        
+        let result = await UploadFileService(formData, token);
+        if (result.code !== 0) {
+            ElMessage.error('上传文件失败，请稍后再试');
+            return;
+        }
+        let resp_data = result.data;
+
+        //console.log("resp:",resp_data);
+        let url = "https://tx.ljsea.top/tool/file/"+resp_data.FileStoreName;
+
+        userInfo.value.Avatar = url;
+        avatarImg.value = url;
+        //更新用户信息
+        await updateUserInfo(userInfo.value);
 };
 </script>
 

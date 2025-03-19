@@ -105,6 +105,14 @@ const getMyUserInfo = async (id) => {
       localStorage.setItem("cid_func", result.data.CIDFunc);
       localStorage.setItem("role", result.data.Role);
 
+      ElMessage.success("注册成功");
+        localStorage.setItem("ms_username", result.data.Name);
+        const keys =
+            permiss.defaultList[result.data.Role == "admin" ? "admin" : "user"];
+        permiss.handleSet(keys);
+        localStorage.setItem("ms_keys", JSON.stringify(keys));
+        router.push("/");
+
       //alert("video_func:" + localStorage.getItem("video_func")+"    type:" +typeof(localStorage.getItem("video_func")));
     }
   } catch (e) {
