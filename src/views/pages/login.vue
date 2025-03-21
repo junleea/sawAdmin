@@ -150,6 +150,7 @@ const getMyUserInfo = async (id) => {
         localStorage.setItem("ms_username", result.data.Name);
         const keys =
             permiss.defaultList[result.data.Role == "admin" ? "admin" : "user"];
+            localStorage.setItem("ms_imgurl", result.data.Avatar);
         permiss.handleSet(keys);
         localStorage.setItem("ms_keys", JSON.stringify(keys));
         router.push("/");

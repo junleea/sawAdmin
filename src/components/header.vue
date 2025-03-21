@@ -62,6 +62,7 @@ import imgurl from '../assets/img/img.jpg';
 
 const username: string | null = localStorage.getItem('ms_username');
 const message: number = 2;
+const imgurl2: string = localStorage.getItem('ms_imgurl') || imgurl;
 
 const sidebar = useSidebarStore();
 // 侧边栏折叠

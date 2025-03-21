@@ -133,23 +133,22 @@ const setImage = (e: any) => {
 };
 
 const updateUserInfo = async (data: any) => {
-    let result ={}
+    let result = null;
       try{
-        let req={};
-        req.token=localStorage.getItem("token");
-        //修改后的数据
-        req.id = data.ID;
-        req.name = data.Name;
-        req.age = data.Age;
-        req.gender = data.Gender;
-        req.password = data.Password;
-        req.email = data.Email;
-        req.avatar = data.Avatar;
-        req.Role = data.Role;
+        let req={
+            token:localStorage.getItem("token"),
+            id:data.ID,
+            name:data.Name,
+            age:data.Age,
+            gender:data.Gender,
+            password:data.Password,
+            email:data.Email,
+            avatar:data.Avatar,
+            role:data.Role
+        };
         result = await updateUserInfoService(req)
         if (result.code === 0) {
           ElMessage.success("更新成功");
-          this.updateDialogVisible = false;
         } else {
           ElMessage.error("更新失败");
         }

@@ -163,8 +163,18 @@ const system = [
     },
     {
         name: '宁静',
-        color: '#00bcd4'
-    }
+        color: '#00bcd4',
+        sidebarBgColor: '#a6d3df',
+        sidebarTextColor: '#5b6e88' 
+    },
+    {
+        name: '活力',
+        color: '#ff9800'
+    },
+    {
+        name: '温馨',
+        color: '#55b2be'
+    },
 ]
 const setSystemTheme = (data: any) => {
     if (data.name === '默认') {
@@ -172,8 +182,8 @@ const setSystemTheme = (data: any) => {
     } else {
         themeStore.setHeaderBgColor(data.color)
         themeStore.setHeaderTextColor('#fff')
-        sidebar.setBgColor('#fff')
-        sidebar.setTextColor('#5b6e88')
+        sidebar.setBgColor(data.sidebarBgColor===null? '#fff':data.sidebarBgColor)
+        sidebar.setTextColor(data.sidebarTextColor===null? '#5b6e88' : data.sidebarTextColor)
         themeStore.setPropertyColor(data.color, 'primary')
     }
 }
@@ -193,7 +203,7 @@ const resetSystemTheme = () => {
 .theme-item {
     margin-right: 20px;
     padding: 30px;
-    border: 1px solid #dcdfe6;
+    border: 1px solid hsl(222, 36%, 37%);
     border-radius: 4px;
     text-align: center;
 }
@@ -201,5 +211,10 @@ const resetSystemTheme = () => {
 .theme-color {
     color: #787878;
     margin: 20px 0;
+}
+
+.test-color {
+    color: #a6d3df;
+    background-color: #242f42;
 }
 </style>

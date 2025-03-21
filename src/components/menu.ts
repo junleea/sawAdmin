@@ -20,17 +20,18 @@ export const menuData: Menus[] = [
                 title: '用户管理',
             },
             {
-                id: '12',
+                id: '51',
                 pid: '1',
-                index: '/system-role',
-                title: '角色管理',
+                index: '/manage-session',
+                title: '会话管理',
             },
             {
-                id: '13',
+                id: '52',
                 pid: '1',
-                index: '/system-menu',
-                title: '菜单管理',
+                index: '/manage-model',
+                title: '模型管理',
             },
+
         ],
     },
     {
@@ -175,17 +176,29 @@ export const menuData: Menus[] = [
         title: '主题',
     },
     {
+        id: '8',
+        icon: 'User',
+        index: '/ucenter',
+        title: '个人中心',
+    },
+    {
+        id: '9',
+        icon: 'Files',
+        index: '/reco-topic',
+        title: '智能选题推荐',
+    },
+    {
+        id: '53',
+        icon: 'ChatDotSquare',
+        index: '/gen-chat',
+        title: '通用人机对话',
+    },
+    {
         id: '6',
         icon: 'DocumentAdd',
         index: '6',
         title: '附加页面',
         children: [
-            {
-                id: '61',
-                pid: '6',
-                index: '/ucenter',
-                title: '个人中心',
-            },
             {
                 id: '62',
                 pid: '6',

@@ -2,7 +2,7 @@ import axios from "axios";
 import router from "@/router/index.js";
 import { ElMessage } from 'element-plus';
 //const baseURL = "https://gep.ljsea.top/";
-const baseURL = "https://tx.ljsea.top/";
+const baseURL = "https://pm.ljsea.top/";
 //const baseURL= "http://localhost:8083";
 //const baseURL="https://pm.ljsea.top";
 //const baseURL = "https://gep.ljsea.xyz/";

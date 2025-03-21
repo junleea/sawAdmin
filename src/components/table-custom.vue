@@ -47,14 +47,17 @@
                     <template #default="{ row, column, $index }" v-if="!item.type">
                         <slot :name="item.prop" :rows="row" :index="$index">
                             <template v-if="item.prop == 'operator'">
-                                <el-button type="warning" size="small" :icon="View" @click="viewFunc(row)">
+                                <el-button type="warning" size="small" :icon="View" @click="viewFunc(row)" v-if="item.operate.view">
                                     查看
                                 </el-button>
-                                <el-button type="primary" size="small" :icon="Edit" @click="editFunc(row)">
+                                <el-button type="primary" size="small" :icon="Edit" @click="editFunc(row)" v-if="item.operate.edit">
                                     编辑
                                 </el-button>
-                                <el-button type="danger" size="small" :icon="Delete" @click="handleDelete(row)">
+                                <el-button type="danger" size="small" :icon="Delete" @click="handleDelete(row)" v-if="item.operate.delete">
                                     删除
+                                </el-button>
+                                <el-button type="danger" size="small" :icon="Link" @click="handlePush(row)" v-if="item.operate.push.link">
+                                    {{item.operate.push.label}}
                                 </el-button>
                             </template>
                             <span v-else-if="item.formatter">
@@ -77,6 +80,9 @@
 import { toRefs, PropType, ref } from 'vue'
 import { Delete, Edit, View, Refresh } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
+import { useRouter } from "vue-router";
+const router = useRouter();
+
 
 const props = defineProps({
     // 表格相关
@@ -179,6 +185,16 @@ const handleDelete = (row) => {
     })
         .then(async () => {
             props.delFunc(row);
+        })
+        .catch(() => { });
+};
+
+const handlePush = (row) => {
+    ElMessageBox.confirm('确定要跳转吗吗？', '提示', {
+        type: 'warning'
+    })
+        .then(async () => {
+            router.push("/gen-chat");
         })
         .catch(() => { });
 };

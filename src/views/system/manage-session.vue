@@ -5,7 +5,7 @@
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
                 :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit">
                 <template #toolbarBtn>
-                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true">新增</el-button>
+                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">新增</el-button>
                 </template>
             </TableCustom>
 
@@ -29,43 +29,38 @@ import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
 import { UserInfo } from '@/types/user';
+import { Session } from '@/types/session';
 import { fetchUserData } from '@/api';
 import { SearchUserService } from "@/api/user";
-import {GetUserInfoService} from "@/api/user";
-import {updateUserInfoService} from "@/api/user";
+import {FindSessionService} from "@/api/session";
+import {UpdateSessionService} from "@/api/session";
+import {AddSessionService} from "@/api/session";
+import {DelSessionService} from "@/api/session";
 import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
 import { FormOption, FormOptionList } from '@/types/form-option';
+
+const userRole = localStorage.getItem('role') == 'admin';
 
 // 查询相关
 const query = reactive({
     name: '',
 });
 const searchOpt = ref<FormOptionList[]>([
-    { type: 'input', label: '用户名或ID：', prop: 'name' }
+    { type: 'input', label: '会话ID：', prop: 'name' }
 ])
 const handleSearch = async () => {
-    let search_id= -1;
-    let keyword_ = "";
-     //判断search_id是字符串还是数字
-     if(isNaN(query.name)){
-          //是字符串，说明是关键字
-            keyword_ = query.name;
-        }else if(isFinite(query.name)){
-          //是数字，说明是ID
-            search_id = parseInt(query.name);
-        }else{
-          //不是数字也不是字符串
-          ElMessage.error("输入错误，请输入数字或者关键字");
-          return;
-        }
+    if (isFinite(query.name) == false){
+        ElMessage.error("请输入正确的会话ID");
+        return;
+    }
     let req={
         token: localStorage.getItem('token'),
-        id: search_id,
-        keyword: keyword_,
+        type: "ID",
+        id: parseInt(query.name)
     }
-    let result = await SearchUserService(req);
+    let result = await FindSessionService(req);
     tableData.value = result.data;
     page.total = result.data.length;
 };
@@ -73,27 +68,23 @@ const handleSearch = async () => {
 // 表格相关
 let columns = ref([
     { type: 'index', label: '序号', width: 55, align: 'center' },
-    { prop: 'ID', label: '用户ID' },
-    { prop: 'Name', label: '用户名' },
-    { prop: 'Age', label: '年龄'},
-    { prop: 'Role', label: '角色' },
+    { prop: 'ID', label: '会话ID' },
+    { prop: 'Name', label: '会话名' },
     { prop: 'CreatedAt', label: '创建时间',type: 'date' },
-    { prop: 'Email', label: '邮箱' },
-    { prop: 'operator', label: '操作', width: 250 ,operate: { view: true, edit: true, delete: true ,push: {link: false,label:"继续该会话"}}},
+    { prop: 'operator', label: '操作', width: 250 , operate: { view: false, edit: true, delete: true,push: {link: true,label:"继续该会话"} }},
 ])
 const page = reactive({
     index: 1,
     size: 10,
     total: 122,
 })
-const tableData = ref<UserInfo[]>([]);
+const tableData = ref<Session[]>([]);
 const getData = async () => {
     let req={
         token: localStorage.getItem('token'),
-        id: -1,
-        keyword: "_121",
+        type: "UserID"
     }
-    let result = await SearchUserService(req);
+    let result = await FindSessionService(req);
     tableData.value = result.data;
     page.total = result.data.length;
 };
@@ -109,10 +100,7 @@ let options = ref<FormOption>({
     labelWidth: '100px',
     span: 12,
     list: [
-        { type: 'input', label: '用户名', prop: 'Name', required: true },
-        { type: 'input', label: '密码', prop: 'Password', required: true },
-        { type: 'input', label: '邮箱', prop: 'Email', required: true },
-        { type: 'input', label: '角色', prop: 'Role', required: true },
+        { type: 'input', label: '会话名称', prop: 'Name', required: true },
     ]
 })
 
@@ -121,15 +109,7 @@ let options_edit = ref<FormOption>({
     labelWidth: '100px',
     span: 12,
     list: [
-        {prop: 'Avatar',label: '头像', type: 'input', required: false},
-        { type: 'input', label: '用户名', prop: 'Name', required: true },
-        { type: 'input', label: '年龄', prop: 'Age', required: false },
-        { type: 'input', label: '密码', prop: 'Password', required: false },
-        { type: 'input', label: '邮箱', prop: 'Email', required: true },
-        { type: 'input', label: '性别', prop: 'Gender', required: false },
-        //select 选择框,可选择admin与user两种角色
-        { type: 'select', label: '角色', prop: 'Role', opts: [{label:"管理员",value:"admin"},{label:"普通用户",value:"user"}],required: false },
-
+        { type: 'input', label: '会话名称', prop: 'Name', required: true },
     ]
 })
 
@@ -138,10 +118,10 @@ const visible_add = ref(false);
 const isEdit = ref(false);
 const isAdd = ref(false);
 const rowData = ref({});
-const handleEdit = async (row: UserInfo) => {
-    let data = await getUserInfo(row.ID);
-
+const handleEdit = async (row: Session) => {
+    let data = row;
     rowData.value = data;
+    console.log("edit_row_data:", rowData.value);
     isEdit.value = true;
     visible.value = true;
 };
@@ -150,19 +130,10 @@ const updateData = async (data) => {
       try{
         let req={};
         req.token=localStorage.getItem("token");
-        //console.log(rowData.value);
-
         //修改后的数据
         req.id = data.ID;
         req.name = data.Name;
-        req.age = data.Age;
-        req.gender = data.Gender;
-        req.password = data.Password;
-        req.email = data.Email;
-        req.avatar = data.Avatar;
-        req.Role = data.Role;
-
-        result = await updateUserInfoService(req)
+        result = await UpdateSessionService(req)
         if (result.code === 0) {
           ElMessage.success("更新成功");
           this.updateDialogVisible = false;
@@ -177,23 +148,28 @@ const updateData = async (data) => {
     handleSearch();
 };
 
-const getUserInfo = async (id) => {
-      let result = {};
+const addData = async (data) => {
+    let result ={}
       try{
-        //获取用户信息
-        let req={
-            token: localStorage.getItem('token'),
-            id: id,
-        };
-        result = await GetUserInfoService(req)
-        if(result.code===0){
-          return result.data;
+        let req={};
+        req.token=localStorage.getItem("token");
+        //修改后的数据
+        req.name = data.Name;
+        result = await AddSessionService(req)
+        if (result.code === 0) {
+          ElMessage.success("新增成功");
+          this.updateDialogVisible = false;
+        } else {
+          ElMessage.error("新增失败");
         }
+
       }catch(e){
         console.log(e);
       }
-      return {};
-    }
+    closeDialog();
+    handleSearch();
+};
+
 
 const closeDialog = () => {
     visible.value = false;
@@ -207,48 +183,31 @@ const viewData = ref({
     row: {},
     list: []
 });
-const handleView =async (row: UserInfo) => {
-    let data = await getUserInfo(row.ID);
-    viewData.value.row = data;
+const handleView =async (row: Session) => {
+    viewData.value.row = row;
     viewData.value.list = [
-        {
-            prop: 'Avatar',
-            label: '头像', //显示头像
-            type: 'image',
-            width: 100,
-        },
-        {
-            prop: 'ID',
-            label: '用户ID',
-        },
-        {
-            prop: 'Name',
-            label: '用户名',
-        },
-        {
-            prop: 'Email',
-            label: '邮箱',
-        },
-        {
-            prop: 'Gender',
-            label: '性别',
-        },
-        {
-            prop: 'Role',
-            label: '角色',
-        },
-        {
-            prop: 'CreatedAt',
-            label: '注册日期',
-            type: 'date',
-        },
+        
     ]
     visible1.value = true;
 };
 
 // 删除相关
-const handleDelete = (row: UserInfo) => {
-    ElMessage.success('删除成功');
+const handleDelete = async (row: Session) => {
+    let req={
+        token: localStorage.getItem('token'),
+        id: row.ID,
+    }
+    try{
+        let result = await DelSessionService(req);
+        if(result.code===0){
+            ElMessage.success("删除成功");
+            handleSearch();
+        }else{
+            ElMessage.error("删除失败");
+        }
+    }catch(e){
+        console.log(e);
+    }
 }
 </script>
 

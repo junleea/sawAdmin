@@ -10,7 +10,7 @@ export const useThemeStore = defineStore('theme', {
             danger: '',
             info: '',
             headerBgColor: '#242f42',
-            headerTextColor: '#fff',
+            headerTextColor: '#ffff',
         };
     },
     getters: {},

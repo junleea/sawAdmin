@@ -33,6 +33,33 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "system-user" */ '../views/system/user.vue'),
             },
             {
+                path: '/manage-model',
+                name: 'manage-model',
+                meta: {
+                    title: '模型管理',
+                    permiss: '52',
+                },
+                component: () => import(/* webpackChunkName: "system-user" */ '../views/system/manage-model.vue'),
+            },
+            {
+                path: '/manage-session',
+                name: 'manage-session',
+                meta: {
+                    title: '会话管理',
+                    permiss: '51',
+                },
+                component: () => import(/* webpackChunkName: "system-user" */ '../views/system/manage-session.vue'),
+            },
+            {
+                path: '/gen-chat',
+                name: 'gen-chat',
+                meta: {
+                    title: '人机对话',
+                    permiss: '53',
+                },
+                component: () => import(/* webpackChunkName: "gen-chat" */ '../views/system/gen-chat.vue'),
+            },
+            {
                 path: '/system-role',
                 name: 'system-role',
                 meta: {
@@ -103,6 +130,14 @@ const routes: RouteRecordRaw[] = [
                     title: '个人中心',
                 },
                 component: () => import(/* webpackChunkName: "ucenter" */ '../views/pages/ucenter.vue'),
+            },
+            {
+                path: '/reco-topic',
+                name: 'reco-topic',
+                meta: {
+                    title: '智能选题推荐',
+                },
+                component: () => import(/* webpackChunkName: "reco-topic" */ '../views/system/reco-topic.vue'),
             },
             {
                 path: '/editor',
