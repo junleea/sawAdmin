@@ -50,8 +50,9 @@ const searchOpt = ref<FormOptionList[]>([
     { type: 'input', label: '模型ID：', prop: 'name' }
 ])
 const handleSearch = async () => {
-    if (isFinite(query.name) == false){
-        ElMessage.error("请输入正确的会话ID");
+    // query.name是否是数字
+    if (isNaN(Number(query.name))) {
+        ElMessage.error('请输入数字');
         return;
     }
     let req={
@@ -136,18 +137,17 @@ const handleEdit = async (row: Model) => {
 const updateData = async (data) => {
     let result ={}
       try{
-        let req={};
-        req.token=localStorage.getItem("token");
-        //修改后的数据
-        req.id = data.ID;
-        req.type = data.Type;
-        req.url = data.Url;
-        req.parameter = data.Parameter;
-        req.description = data.Description;
+        let req={
+            token:localStorage.getItem("token"),
+            id: data.ID,
+            type: data.Type,
+            url: data.Url,
+            parameter: data.Parameter,
+            description: data.Description
+        };
         result = await UpdateModelService(req)
         if (result.code === 0) {
           ElMessage.success("更新成功");
-          this.updateDialogVisible = false;
         } else {
           ElMessage.error("更新失败");
         }
@@ -172,7 +172,6 @@ const addData = async (data) => {
         result = await AddModelService(req)
         if (result.code === 0) {
           ElMessage.success("新增成功");
-          this.updateDialogVisible = false;
         } else {
           ElMessage.error("新增失败");
         }

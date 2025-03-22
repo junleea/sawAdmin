@@ -136,7 +136,6 @@ const updateData = async (data) => {
         result = await UpdateSessionService(req)
         if (result.code === 0) {
           ElMessage.success("更新成功");
-          this.updateDialogVisible = false;
         } else {
           ElMessage.error("更新失败");
         }
@@ -158,7 +157,6 @@ const addData = async (data) => {
         result = await AddSessionService(req)
         if (result.code === 0) {
           ElMessage.success("新增成功");
-          this.updateDialogVisible = false;
         } else {
           ElMessage.error("新增失败");
         }
