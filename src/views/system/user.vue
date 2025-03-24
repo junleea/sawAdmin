@@ -160,7 +160,7 @@ const updateData = async (data) => {
         req.password = data.Password;
         req.email = data.Email;
         req.avatar = data.Avatar;
-        req.Role = data.Role;
+        req.role = data.Role;
 
         result = await updateUserInfoService(req)
         if (result.code === 0) {
@@ -185,8 +185,8 @@ const getUserInfo = async (id) => {
             id: id,
         };
         result = await GetUserInfoService(req)
-        if(result.code===0){
-          return result.data;
+        if(result['code'] === 0){
+          return result['data'];
         }
       }catch(e){
         console.log(e);

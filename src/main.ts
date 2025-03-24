@@ -7,11 +7,23 @@ import { usePermissStore } from './store/permiss';
 import globalData  from '@/utils/global'
 import 'element-plus/dist/index.css';
 import './assets/css/icon.css';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css' //样式
+
+
 
 const app = createApp(App);
 app.use(createPinia());
 app.provide('globalData',globalData);
 app.use(router);
+//创建v-highlight全局指
+app.directive('highlight',function (el) {
+    let blocks = el.querySelectorAll('pre code');
+    blocks.forEach((block)=>{
+      hljs.highlightBlock(block)
+    })
+  })
+
 
 // 注册elementplus图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

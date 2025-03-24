@@ -67,7 +67,7 @@ const handleSearch = async () => {
 
 // 表格相关
 let columns = ref([
-    { type: 'index', label: '序号', width: 55, align: 'center' },
+  //  { type: 'index', label: '序号', width: 55, align: 'center' },
     { prop: 'ID', label: '模型ID' },
     {prop: 'Url', label: 'URl'},
     { prop: 'Type', label: '类型' },

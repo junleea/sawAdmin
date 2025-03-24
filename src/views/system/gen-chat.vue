@@ -7,27 +7,28 @@
           :class="{ 'user-message': message.sender === 'user', 'ai-message': message.sender === 'ai' }"
           shadow="never"
         >
-          <template #header>
+          <!-- <template #header>
             <span>{{ message.sender === 'user' ? '你' : 'AI' }}</span>
-          </template>
-          <div>{{ message.content }}</div>
+          </template> -->
+          <div v-html="renderMarkdown(message.content)"></div>
         </el-card>
         <el-card
           v-if="currentAIMessage.length > 0"
           class="ai-message"
           shadow="never"
         >
-          <template #header>
+          <!-- <template #header>
             <span>AI</span>
-          </template>
-          <div>{{ currentAIMessage }}</div>
+          </template> -->
+          <div v-html="renderMarkdown(currentAIMessage)"></div>
         </el-card>
       </div>
       <div class="input-container">
         <el-input
+        type="textarea"
+        :row = "3"
           v-model="inputMessage"
           placeholder="输入你的消息..."
-
           @keyup.enter="sendMessage"
         ></el-input>
         <el-button @click="sendMessage">发送</el-button>
@@ -35,12 +36,61 @@
     </div>
   </template>
   
-  <script setup lang="ts">
-  import { ref, onMounted, onUnmounted } from 'vue';
-  import { ElCard, ElInput, ElButton } from 'element-plus';
-  import { WSMessage,AIQMessage,OllamaMessage } from '@/types/im';
-  import { ElMessage } from 'element-plus';
-  import {GetMessageService} from "@/api/im";
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
+import { ElCard, ElInput, ElButton } from 'element-plus';
+import { WSMessage,AIQMessage,OllamaMessage } from '@/types/im';
+import { ElMessage } from 'element-plus';
+import {GetMessageService} from "@/api/im";
+import MarkdownIt from 'markdown-it';
+import hljs from 'highlight.js';
+import bash from 'highlight.js/lib/languages/bash'
+import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
+import java from 'highlight.js/lib/languages/java';
+import sql from 'highlight.js/lib/languages/sql';
+import nginx from 'highlight.js/lib/languages/nginx';
+import json from 'highlight.js/lib/languages/json';
+import yaml from 'highlight.js/lib/languages/yaml';
+import xml from 'highlight.js/lib/languages/xml';
+import shell from 'highlight.js/lib/languages/shell'
+
+hljs.registerLanguage('bash', bash)
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('typescript', typescript);
+hljs.registerLanguage('java', java);
+hljs.registerLanguage('sql', sql);
+hljs.registerLanguage('nginx', nginx);
+hljs.registerLanguage('json', json);
+hljs.registerLanguage('yaml', yaml);
+hljs.registerLanguage('xml', xml);
+hljs.registerLanguage('shell', shell);
+
+  
+  const md = new MarkdownIt({
+    html: true,
+    linkify: true,
+    breaks: true,
+    xhtmlOut: true,
+    typographer: true,
+    highlight: function (str, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+        try {
+            return (
+            '<pre class="hljs"><code>' +
+            hljs.highlight(lang, str, true).value +
+            "</code></pre>"
+            );
+        } catch (__) { }
+        }
+
+        return (
+        '<pre class="hljs"><code>' +
+        md.utils.escapeHtml(str) +
+        "</code></pre>"
+        );
+    },
+});
   
   const messages = ref([]);
   const inputMessage = ref('');
@@ -48,15 +98,19 @@
   const currentAIMessage = ref('');
   const messageContainer = ref(null);
   const sessionID = ref(0);
+  const AIIsSending =ref(false);
+
+  
+  const renderMarkdown = (content: string) => {
+    return md.render(content);
+  };
   
   onMounted(() => {
     let url ='wss://pm.ljsea.top/im/ai_chat_ws?' + 'token=' + localStorage.getItem('token');
     socket.value = new WebSocket(url);
-  
     socket.value.onopen = () => {
       console.log('WebSocket 连接已建立');
       ElMessage.success('连接成功');
-
     };
   
     socket.value.onmessage = (event) => {
@@ -94,6 +148,7 @@
     let msg = {
         msg: inputMessage.value,
         type: "ollama",
+        function: "gen-ai-chat"
     }
     if (inputMessage.value.trim() === '') return;
     messages.value.push({ sender: 'user', content: inputMessage.value });
@@ -108,7 +163,7 @@
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
     }
   };
-
+  
   const getMessage = async () => {
     let result = {};
     try{
@@ -131,7 +186,7 @@
   .chat-container {
     display: flex;
     flex-direction: column;
-    height: 600px;
+    height: 100%;
   }
   
   .chat-messages {
@@ -140,15 +195,18 @@
     padding: 10px;
     border: 1px solid #ccc;
     margin-bottom: 10px;
+    height: 80%;
   }
   
   .user-message {
     text-align: right;
+    background-color: #ccc;
     margin-bottom: 10px;
   }
   
   .ai-message {
     text-align: left;
+    max-width: 60%;
     margin-bottom: 10px;
   }
   

@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { toRefs, PropType, ref } from 'vue'
-import { Delete, Edit, View, Refresh } from '@element-plus/icons-vue';
+import { Delete, Edit, View, Refresh,Link } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
 import { useRouter } from "vue-router";
 const router = useRouter();

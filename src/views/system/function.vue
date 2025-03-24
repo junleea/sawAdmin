@@ -28,9 +28,7 @@
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
-import { UserInfo } from '@/types/user';
 import { Function } from '@/types/function';
-import { fetchUserData } from '@/api';
 import {FindFunctionService} from "@/api/function";
 import {UpdateFunctionService} from "@/api/function";
 import {AddFunctionService} from "@/api/function";
@@ -150,13 +148,13 @@ const updateData = async (data) => {
         let req={
             token:localStorage.getItem("token"),
             id: data.ID,
-            type: data.Type,
-            url: data.Url,
-            parameter: data.Parameter,
-            description: data.Description
+            name: data.Name,
+            model_id: data.ModelID,
+            function: data.Function,
+            info: data.Info
         };
         result = await UpdateFunctionService(req)
-        if (result.code === 0) {
+        if (result['code'] === 0) {
           ElMessage.success("更新成功");
         } else {
           ElMessage.error("更新失败");
@@ -180,7 +178,7 @@ const addData = async (data) => {
             info: data.Info
         }
         result = await AddFunctionService(req)
-        if (result.code === 0) {
+        if (result['code'] === 0) {
           ElMessage.success("新增成功");
         } else {
           ElMessage.error("新增失败");
@@ -253,7 +251,7 @@ const handleDelete = async (row: Function) => {
     }
     try{
         let result = await DelFunctionService(req);
-        if(result.code===0){
+        if(result['code'] === 0){
             ElMessage.success("删除成功");
             getData();
         }else{

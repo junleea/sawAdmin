@@ -10,3 +10,11 @@ export interface Model{
     Parameter: string;
     Description: string;
 }
+
+export interface ModelParameter{
+    Model: string;
+    Url: string;
+    APPID: string;
+    APIKey: string;
+    APISecret: string;
+}
