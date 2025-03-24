@@ -31,6 +31,12 @@ export const menuData: Menus[] = [
                 index: '/manage-model',
                 title: '模型管理',
             },
+            {
+                id: '54',
+                pid: '1',
+                index: '/function',
+                title: '功能管理',
+            }
 
         ],
     },

@@ -165,7 +165,6 @@ const updateData = async (data) => {
         result = await updateUserInfoService(req)
         if (result.code === 0) {
           ElMessage.success("更新成功");
-          this.updateDialogVisible = false;
         } else {
           ElMessage.error("更新失败");
         }
@@ -174,7 +173,7 @@ const updateData = async (data) => {
         console.log(e);
       }
       closeDialog();
-    handleSearch();
+    getData();
 };
 
 const getUserInfo = async (id) => {
