@@ -1,2 +1,306 @@
-{"model":"spark","appid":"d3a4647c","apiSecret":"YjRlNGNjYzM5ZjIxNGM5NzhkNDJjMGM4","apiKey":"3ee5ae2b03a4039e79ba1a490631309e","domain":"pro-128k"}
+<template>
+  <div class="chat-container">
+    <!-- 消息列表 -->
+    <el-card class="chat-messages" shadow="never" ref="messageContainer">
+      <div
+        v-for="(message, index) in messages"
+        :key="index"
+        :class="['message', message.role]"
+      >
+        <div class="message-avatar">
+          <span v-if="message.role === 'assistant'">💬</span>
+          <span v-else>👤</span>
+        </div>
+        <div class="message-content">
+          <div v-html="renderMarkdown(message.content)"></div>
+        </div>
+      </div>
+      <div v-if="loading" class="loading-indicator">Loading...</div>
+    </el-card>
 
+    <!-- 输入区域 -->
+    <el-card class="chat-input" shadow="never">
+      <el-row :gutter="10">
+        <el-col :span="20">
+          <el-input
+            v-model="inputMessage"
+            type="textarea"
+            :rows="2"
+            placeholder="输入消息..."
+            @keyup.enter="sendMessage"
+          />
+        </el-col>
+        <el-col :span="4">
+          <el-button type="primary" @click="sendMessage">Send</el-button>
+        </el-col>
+      </el-row>
+    </el-card>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, reactive, nextTick } from "vue";
+import { ElCard, ElInput, ElButton } from "element-plus";
+import { WSMessage, AIQMessage, OllamaMessage } from "@/types/im";
+import { ElMessage } from "element-plus";
+import { GetMessageService } from "@/api/im";
+import MarkdownIt from "markdown-it";
+import hljs from "highlight.js";
+import bash from "highlight.js/lib/languages/bash";
+import javascript from "highlight.js/lib/languages/javascript";
+import typescript from "highlight.js/lib/languages/typescript";
+import java from "highlight.js/lib/languages/java";
+import sql from "highlight.js/lib/languages/sql";
+import nginx from "highlight.js/lib/languages/nginx";
+import json from "highlight.js/lib/languages/json";
+import yaml from "highlight.js/lib/languages/yaml";
+import xml from "highlight.js/lib/languages/xml";
+import shell from "highlight.js/lib/languages/shell";
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+  finished?: boolean;
+}
+hljs.registerLanguage("bash", bash);
+hljs.registerLanguage("javascript", javascript);
+hljs.registerLanguage("typescript", typescript);
+hljs.registerLanguage("java", java);
+hljs.registerLanguage("sql", sql);
+hljs.registerLanguage("nginx", nginx);
+hljs.registerLanguage("json", json);
+hljs.registerLanguage("yaml", yaml);
+hljs.registerLanguage("xml", xml);
+hljs.registerLanguage("shell", shell);
+
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  breaks: true,
+  xhtmlOut: true,
+  typographer: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return (
+          '<pre class="hljs"><code>' +
+          hljs.highlight(lang, str, true).value +
+          "</code></pre>"
+        );
+      } catch (__) {}
+    }
+
+    return (
+      '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + "</code></pre>"
+    );
+  },
+});
+
+const loading = ref(false);
+const isUserScrolling = ref<boolean>(false);
+const messages = reactive([]);
+const inputMessage = ref("");
+const socket = ref(null);
+const currentAIMessage = ref("");
+const messageContainer = ref(null);
+const sessionID = ref(0);
+
+const renderMarkdown = (content: string) => {
+  return md.render(content);
+};
+
+onMounted(() => {
+  let url =
+    "wss://pm.ljsea.top/im/ai_chat_ws?" +
+    "token=" +
+    localStorage.getItem("token");
+  socket.value = new WebSocket(url);
+  socket.value.onopen = () => {
+    console.log("WebSocket 连接已建立");
+    ElMessage.success("连接成功");
+  };
+
+  const container = document.querySelector('.messages-wrapper') as HTMLElement | null;
+      if (container) {
+        container.addEventListener('scroll', handleScroll);
+      }
+
+  socket.value.onmessage = (event) => {
+    let msg: WSMessage = JSON.parse(event.data);
+    const existingMessage = messages.find(
+      (msg) => msg.role === "assistant" && !msg.finished
+    );
+    // if (msg.msg.msg.done) {
+    //   messages.push({ role: 'assistant', content: currentAIMessage.value });
+    //   currentAIMessage.value = '';
+    //   scrollToBottom();
+    //   return;
+    // }
+    if (existingMessage) {
+      // 追加内容
+      existingMessage.content += msg.msg.msg.response;
+    } else {
+      // 新消息
+      messages.push({
+        role: "assistant",
+        content: msg.msg.msg.response,
+        finished: false,
+      });
+    }
+    console.log("resp:", msg);
+    sessionID.value = msg.session_id;
+    currentAIMessage.value += msg.msg.msg.response;
+    scrollToBottom();
+    if (msg.msg.msg.done) {
+      const assistantMessage = messages[messages.length - 1];
+      assistantMessage.finished = true;
+    }
+  };
+
+  socket.value.onclose = () => {
+    console.log("WebSocket 连接已关闭");
+    ElMessage.error("连接已关闭");
+  };
+
+  socket.value.onerror = (error) => {
+    console.error("WebSocket 发生错误:", error);
+  };
+});
+
+onUnmounted(() => {
+  if (socket.value) {
+    socket.value.close();
+  }
+});
+
+const sendMessage = () => {
+  let msg = {
+    msg: inputMessage.value,
+    type: "ollama",
+    function: "gen-ai-chat",
+    session_id: sessionID.value,
+  };
+  if (inputMessage.value.trim() === "") return;
+  messages.push({ role: "user", content: inputMessage.value, finished: true });
+  socket.value.send(JSON.stringify(msg));
+  inputMessage.value = "";
+  //getMessage();
+  scrollToBottom();
+};
+
+const scrollToBottom = (): void => {
+  nextTick(() => {
+    if (messageContainer.value && !isUserScrolling.value) {
+      messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+    }
+  });
+};
+
+// 监听用户滚动行为，判断是否在手动滚动历史消息
+const handleScroll = (): void => {
+  const container = document.querySelector(
+    ".messages-wrapper"
+  ) as HTMLElement | null;
+  if (container) {
+    const scrollBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+    isUserScrolling.value = scrollBottom > 50; // 如果距离底部超过50px，则认为在查看历史消息
+  }
+};
+
+const getMessage = async () => {
+  let result = {};
+  try {
+    let req = {
+      token: localStorage.getItem("token"),
+      session_id: sessionID.value,
+    };
+    result = await GetMessageService(req);
+    if (result["code"] === 0) {
+      console.log(result["data"]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  return {};
+};
+</script>
+
+<style scoped>
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* 使用视口高度确保容器占满整个屏幕 */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto; /* 允许垂直滚动 */
+  padding: 10px;
+  margin-bottom: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* 默认将新消息对齐到底部 */
+  overflow-y: auto; /* 确保内部可以滚动 */
+  height: 100%;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message-avatar {
+  width: 40px;
+  text-align: center;
+  line-height: 40px;
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.message.assistant .message-avatar {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+.message-content {
+  background-color: #f0f9eb;
+  border: 1px solid #e1f3d8;
+  border-radius: 4px;
+  padding: 10px 15px;
+  white-space: pre-wrap;
+  max-width: 70%;
+}
+
+.message.assistant .message-content {
+  background-color: #f3f4f6;
+  border: 1px solid #dce4eb;
+  max-width: 70%;
+}
+
+.loading-indicator {
+  text-align: center;
+  color: #999;
+  font-size: 16px;
+}
+
+.chat-input {
+  width: 100%;
+}
+
+.el-input {
+  width: 100%;
+}
+</style>
