@@ -10,6 +10,7 @@ export interface FormOptionList {
     label: string;
     type: string;
     placeholder?: string;
+    rows?: number;
     disabled?: boolean;
     opts?: any[];
     format?: string;

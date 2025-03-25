@@ -51,10 +51,10 @@ const searchOpt = ref<FormOptionList[]>([
     { type: 'input', label: '会话ID：', prop: 'name' }
 ])
 const handleSearch = async () => {
-    if (isFinite(query.name) == false){
-        ElMessage.error("请输入正确的会话ID");
-        return;
-    }
+    // if (isFinite(query.name) == false){
+    //     ElMessage.error("请输入正确的会话ID");
+    //     return;
+    // }
     let req={
         token: localStorage.getItem('token'),
         type: "ID",
@@ -68,10 +68,13 @@ const handleSearch = async () => {
 // 表格相关
 let columns = ref([
     { type: 'index', label: '序号', width: 55, align: 'center' },
-    { prop: 'ID', label: '会话ID' },
-    { prop: 'Name', label: '会话名' },
-    { prop: 'CreatedAt', label: '创建时间',type: 'date' },
-    { prop: 'operator', label: '操作', width: 250 , operate: { view: false, edit: true, delete: true,push: {link: true,label:"继续该会话"} }},
+    { prop: 'ID', label: '会话ID', width: 50 },
+    { prop: 'Name', label: '会话名' ,width: 300},
+    { prop: 'MsgCount', label: '消息数',width:50},
+    { prop: "Context", label: "会话背景参数" ,width: 100},
+    { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 150 },
+    { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 150 },
+    { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: true,label:"继续该会话"} }},
 ])
 const page = reactive({
     index: 1,
@@ -128,13 +131,13 @@ const handleEdit = async (row: Session) => {
 const updateData = async (data) => {
     let result ={}
       try{
-        let req={};
-        req.token=localStorage.getItem("token");
-        //修改后的数据
-        req.id = data.ID;
-        req.name = data.Name;
+        let req={
+            token:localStorage.getItem("token"),
+            id: data.ID,
+            name: data.Name
+        };
         result = await UpdateSessionService(req)
-        if (result.code === 0) {
+        if (result["code"] === 0) {
           ElMessage.success("更新成功");
         } else {
           ElMessage.error("更新失败");
@@ -150,12 +153,12 @@ const updateData = async (data) => {
 const addData = async (data) => {
     let result ={}
       try{
-        let req={};
-        req.token=localStorage.getItem("token");
-        //修改后的数据
-        req.name = data.Name;
+        let req={
+            token:localStorage.getItem("token"),
+            name: data.Name
+        };
         result = await AddSessionService(req)
-        if (result.code === 0) {
+        if (result["code"] === 0) {
           ElMessage.success("新增成功");
         } else {
           ElMessage.error("新增失败");
@@ -197,7 +200,7 @@ const handleDelete = async (row: Session) => {
     }
     try{
         let result = await DelSessionService(req);
-        if(result.code===0){
+        if(result["code"] === 0){
             ElMessage.success("删除成功");
             handleSearch();
         }else{

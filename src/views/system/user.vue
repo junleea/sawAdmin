@@ -4,9 +4,9 @@
         <div class="container">
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
                 :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit">
-                <template #toolbarBtn>
+                <!-- <template #toolbarBtn>
                     <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true">新增</el-button>
-                </template>
+                </template> -->
             </TableCustom>
 
         </div>
@@ -14,10 +14,10 @@
             :close-on-click-modal="false" @close="closeDialog">
             <TableEdit :form-data="rowData" :options="options_edit" :edit="isEdit" :update="updateData" />
         </el-dialog>
-        <el-dialog :title="isAdd ? '新增' : '新增'" v-model="visible_add" width="700px" destroy-on-close
+        <!-- <el-dialog :title="isAdd ? '新增' : '新增'" v-model="visible_add" width="700px" destroy-on-close
             :close-on-click-modal="false" @close="closeDialog">
             <TableEdit :form-data="rowData" :options="options" :edit="isAdd" :update="addData" />
-        </el-dialog>
+        </el-dialog> -->
         <el-dialog title="查看详情" v-model="visible1" width="700px" destroy-on-close>
             <TableDetail :data="viewData"></TableDetail>
         </el-dialog>
@@ -48,18 +48,12 @@ const searchOpt = ref<FormOptionList[]>([
 const handleSearch = async () => {
     let search_id= -1;
     let keyword_ = "";
-     //判断search_id是字符串还是数字
-     if(isNaN(query.name)){
-          //是字符串，说明是关键字
-            keyword_ = query.name;
-        }else if(isFinite(query.name)){
-          //是数字，说明是ID
-            search_id = parseInt(query.name);
-        }else{
-          //不是数字也不是字符串
-          ElMessage.error("输入错误，请输入数字或者关键字");
-          return;
-        }
+    try{
+        search_id = parseInt(query.name);
+    }catch(e){
+        search_id = -1;
+        keyword_ = query.name;
+    }
     let req={
         token: localStorage.getItem('token'),
         id: search_id,
@@ -126,7 +120,7 @@ let options_edit = ref<FormOption>({
         { type: 'input', label: '年龄', prop: 'Age', required: false },
         { type: 'input', label: '密码', prop: 'Password', required: false },
         { type: 'input', label: '邮箱', prop: 'Email', required: true },
-        { type: 'input', label: '性别', prop: 'Gender', required: false },
+        { type: 'select', label: '性别', prop: 'Gender', required: false,opts:[{label: '男', value:"男"},{label: '女', value:"女"}]},
         //select 选择框,可选择admin与user两种角色
         { type: 'select', label: '角色', prop: 'Role', opts: [{label:"管理员",value:"admin"},{label:"普通用户",value:"user"}],required: false },
 
@@ -148,22 +142,20 @@ const handleEdit = async (row: UserInfo) => {
 const updateData = async (data) => {
     let result ={}
       try{
-        let req={};
-        req.token=localStorage.getItem("token");
-        //console.log(rowData.value);
-
-        //修改后的数据
-        req.id = data.ID;
-        req.name = data.Name;
-        req.age = data.Age;
-        req.gender = data.Gender;
-        req.password = data.Password;
-        req.email = data.Email;
-        req.avatar = data.Avatar;
-        req.role = data.Role;
+        let req={
+            token:localStorage.getItem("token"),
+            id: data.ID,
+            name: data.Name,
+            age: data.Age,
+            gender: data.Gender,
+            password: data.Password,
+            email: data.Email,
+            avatar: data.Avatar,
+            role: data.Role,
+        };
 
         result = await updateUserInfoService(req)
-        if (result.code === 0) {
+        if (result["code"] === 0) {
           ElMessage.success("更新成功");
         } else {
           ElMessage.error("更新失败");

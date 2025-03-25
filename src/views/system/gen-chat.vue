@@ -122,7 +122,7 @@ hljs.registerLanguage('shell', shell);
         scrollToBottom();
         return;
       }
-      //console.log("resp:",msg);
+      console.log("resp:",msg);
       sessionID.value =msg.session_id;
       currentAIMessage.value += msg.msg.msg.response;
       scrollToBottom();
@@ -148,7 +148,8 @@ hljs.registerLanguage('shell', shell);
     let msg = {
         msg: inputMessage.value,
         type: "ollama",
-        function: "gen-ai-chat"
+        function: "gen-ai-chat",
+        session_id: sessionID.value,
     }
     if (inputMessage.value.trim() === '') return;
     messages.value.push({ sender: 'user', content: inputMessage.value });
@@ -172,8 +173,8 @@ hljs.registerLanguage('shell', shell);
           session_id: sessionID.value,
       };
       result = await GetMessageService(req)
-      if(result.code===0){
-        return result.data;
+      if(result['code'] === 0){
+        console.log(result['data']);
       }
     }catch(e){
       console.log(e);

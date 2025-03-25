@@ -69,10 +69,10 @@ const handleSearch = async () => {
 let columns = ref([
   //  { type: 'index', label: '序号', width: 55, align: 'center' },
     { prop: 'ID', label: '模型ID' },
-    {prop: 'Url', label: 'URl'},
     { prop: 'Type', label: '类型' },
-    { prop: 'Parameter', label: '参数' },
     {prop: 'Description', label: '描述'},
+    { prop: 'Parameter', label: '参数', width: 250 },
+    {prop: 'Url', label: 'URl'},
     { prop: 'CreatedAt', label: '创建时间',type: 'date' },
     { prop: 'operator', label: '操作', width: 250 , operate: { view: true, edit: true, delete: true,push: {link: false,label:"继续该会话"} }},
 ])
@@ -103,7 +103,7 @@ let options = ref<FormOption>({
     labelWidth: '100px',
     span: 12,
     list: [
-        { type: 'input', label: '类型', prop: 'Type', required: true },
+        { type: 'select', label: '类型', prop: 'Type', required: true , opts:[{label: '本地部署模型', value: 'ollama'},{label: '星火', value: 'spark'},{label: '豆包', value: 'doubao'}]},
         { type: 'input', label: 'URL', prop: 'Url', required: true },
         { type: 'input', label: '参数', prop: 'Parameter', required: true },
         { type: 'input', label: '描述', prop: 'Description', required: true },
@@ -115,9 +115,9 @@ let options_edit = ref<FormOption>({
     labelWidth: '100px',
     span: 12,
     list: [
-        { type: 'input', label: '类型', prop: 'Type', required: true },
+        { type: 'select', label: '类型', prop: 'Type', required: true,opts:[{label: '本地部署模型', value: 'ollama'},{label: '星火', value: 'spark'},{label: '豆包', value: 'doubao'}]},
         { type: 'input', label: 'URL', prop: 'Url', required: true },
-        { type: 'input', label: '参数', prop: 'Parameter', required: true },
+        { type: 'input', label: '参数', prop: 'Parameter', required: true, rows: 4 },
         { type: 'input', label: '描述', prop: 'Description', required: true },
     ]
 })
@@ -146,7 +146,7 @@ const updateData = async (data) => {
             description: data.Description
         };
         result = await UpdateModelService(req)
-        if (result.code === 0) {
+        if (result["code"] === 0) {
           ElMessage.success("更新成功");
         } else {
           ElMessage.error("更新失败");
@@ -162,15 +162,15 @@ const updateData = async (data) => {
 const addData = async (data) => {
     let result ={}
       try{
-        let req={};
-        req.token=localStorage.getItem("token");
-        //修改后的数据
-        req.type = data.Type;
-        req.url = data.Url;
-        req.parameter = data.Parameter;
-        req.description = data.Description;
+        let req={
+            token:localStorage.getItem("token"),
+            type: data.Type,
+            url: data.Url,
+            parameter: data.Parameter,
+            description: data.Description
+        };
         result = await AddModelService(req)
-        if (result.code === 0) {
+        if (result["code"] === 0) {
           ElMessage.success("新增成功");
         } else {
           ElMessage.error("新增失败");
@@ -206,20 +206,20 @@ const handleView =async (row: Model) => {
             label: '模型ID',
         },
         {
-            prop: 'Url',
-            label: 'URL',
-        },
-        {
             prop: 'Type',
             label: '类型',
+        },
+        {
+            prop: 'Description',
+            label: '描述',
         },
         {
             prop: 'Parameter',
             label: '参数',
         },
         {
-            prop: 'Description',
-            label: '描述',
+            prop: 'Url',
+            label: 'URL',
         },
         {
             prop: 'CreatedAt',
@@ -243,7 +243,7 @@ const handleDelete = async (row: Model) => {
     }
     try{
         let result = await DelModelService(req);
-        if(result.code===0){
+        if(result["code"] === 0){
             ElMessage.success("删除成功");
             getData();
         }else{

@@ -1,1 +1,2 @@
-{'model':'spark','appid':'d3a4647c','apiSecret':'YjRlNGNjYzM5ZjIxNGM5NzhkNDJjMGM4','apiKey':'3ee5ae2b03a4039e79ba1a490631309e'}
+{"model":"spark","appid":"d3a4647c","apiSecret":"YjRlNGNjYzM5ZjIxNGM5NzhkNDJjMGM4","apiKey":"3ee5ae2b03a4039e79ba1a490631309e","domain":"pro-128k"}
+

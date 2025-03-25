@@ -39,7 +39,7 @@
             @selection-change="handleSelectionChange" table-layout="auto">
             <template v-for="item in columns" :key="item.prop">
                 <el-table-column v-if="item.visible" :prop="item.prop" :label="item.label" :width="item.width"
-                    :type="item.type" :align="item.align || 'center'">
+                    :type="item.type" :align="item.align || 'center'" show-overflow-tooltip>
 
                     <template #default="{ row, column, $index }" v-if="item.type === 'index'">
                         {{ getIndex($index) }}

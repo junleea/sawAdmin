@@ -3,6 +3,8 @@ export interface Session {
     CreatedAt: string;
     UpdatedAt: string;
     DeletedAt: string;
+    MsgCount: number;
+    Countext: any;
     Name: string;
     UserID: number;
 }
