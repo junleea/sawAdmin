@@ -63,7 +63,7 @@ const routes: RouteRecordRaw[] = [
                 path: '/gen-chat',
                 name: 'gen-chat',
                 meta: {
-                    title: '人机对话',
+                    title: '通用智能交互',
                     permiss: '53',
                 },
                 component: () => import(/* webpackChunkName: "gen-chat" */ '../views/system/gen-chat.vue'),
