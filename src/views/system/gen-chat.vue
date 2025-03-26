@@ -2,6 +2,9 @@
   <div class="chat-app">
     <!-- 历史会话侧边栏 -->
     <div class="history-sessions" v-if="sessionIsShow">
+      <div>
+          <el-button type="primary" @click="clearCurrent">新会话</el-button>
+        </div>
       <el-card class="session-card">
         <template #header>
           <h3>当前会话</h3>
@@ -39,9 +42,6 @@
             <Fold />
           </el-icon>
         </div>
-        <div>
-          <el-button type="primary" @click="clearCurrent">新会话</el-button>
-        </div>
       </div>
       <!-- 消息列表 -->
       <el-card class="chat-messages" shadow="never" ref="messagesContainer">
@@ -72,9 +72,10 @@
               placeholder="输入消息..."
               @keyup.enter="sendMessage"
             />
+            <el-text v-model="inputMessage" aria-placeholder="输入信息...."></el-text>
           </el-col>
           <el-col :span="4" style="text-align: center">
-            <el-button type="primary" @click="sendMessage">发送</el-button>
+            <el-button  @click="sendMessage" type="success" :icon="Check" round :disabled="loading">发送</el-button>
           </el-col>
         </el-row>
       </el-card>
@@ -88,6 +89,7 @@ import { ElCard, ElInput, ElButton } from "element-plus";
 import { WSMessage, AIQMessage, OllamaMessage } from "@/types/im";
 import { ElMessage } from "element-plus";
 import { GetMessageService } from "@/api/im";
+import {Check, Loading} from '@element-plus/icons-vue'
 import MarkdownIt from "markdown-it";
 import markdownItMermaid from "markdown-it-mermaid";
 import hljs from "highlight.js";
@@ -208,6 +210,8 @@ onMounted(() => {
   socket.value.onclose = () => {
     console.log("WebSocket 连接已关闭");
     ElMessage.error("连接已关闭");
+    //重新连接
+    socket.value = new WebSocket(url);
   };
 
   socket.value.onerror = (error) => {
@@ -353,6 +357,7 @@ const getMessage = async (session_id: number) => {
   overflow-y: auto; /* 允许垂直滚动 */
   padding: 10px;
   margin-bottom: 20px;
+  scrollbar-width: 20px;
   position: relative;
   display: flex;
   flex-direction: column;
