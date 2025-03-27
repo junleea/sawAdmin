@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts" name="ucenter">
-import { reactive, ref } from 'vue';
+import { reactive, ref,inject } from 'vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import avatar from '@/assets/img/img.jpg';
@@ -96,9 +96,9 @@ const form = reactive({
     new: '',
     old: '',
 });
-const onSubmit = () => {};
-const userInfo = ref<UserInfo>({});
+const userInfo = ref<UserInfo>();
 const isUserInfoLoaded = ref(false);
+const globalData = inject("globalData");
 
 const activeName = ref('label2');
 const router = useRouter();
@@ -147,7 +147,7 @@ const updateUserInfo = async (data: any) => {
             role:data.Role
         };
         result = await updateUserInfoService(req)
-        if (result.code === 0) {
+        if (result["code"] === 0) {
           ElMessage.success("更新成功");
         } else {
           ElMessage.error("更新失败");
@@ -167,15 +167,15 @@ const resetPassword = async () =>{
     }
     try{
         let result = await genResetPassword(req);
-        if (result.code === 0) {
+        if (result["code"] === 0) {
             //重置成功，返回新token
             if (result.data.token) {
                 localStorage.setItem('token', result.data.token);
-                globalData.token = result.data.token;
+                globalData["token"] = result.data.token;
                 ElMessage.success('重置密码成功');
             }
         } else {
-            ElMessage.error(result.msg);
+            ElMessage.error(result["msg"]);
         }
     }catch(e){
         console.log(e)
@@ -210,13 +210,13 @@ const GetMyUserInfo = async () => {
     };
     try{
         let result = await GetUserInfoService(req);
-        if (result.code == 0) {
+        if (result["code"] == 0) {
             avatarImg.value = result.data.Avatar == '' ? avatar : result.data.Avatar;
             imgSrc.value = avatarImg.value;
             userInfo.value = result.data;
             userInfo.value.Password = '**********';
         }else{
-            ElMessage.error(result.msg);
+            ElMessage.error(result["msg"]);
         }
         isUserInfoLoaded.value = true;
     }catch(e){
@@ -259,7 +259,7 @@ const saveAvatar =async () => {
 
         
         let result = await UploadFileService(formData, token);
-        if (result.code !== 0) {
+        if (result["code"] !== 0) {
             ElMessage.error('上传文件失败，请稍后再试');
             return;
         }

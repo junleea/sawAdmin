@@ -49,7 +49,7 @@
     </div>
 </template>
 
-<script setup >
+<script setup lang="ts">
 import { ref,inject } from 'vue';
 import { ElMessage } from 'element-plus';
 import {genResetPassword} from "@/api/user";
@@ -90,11 +90,11 @@ const resetPassword  = async () =>{
 
     try{
         let result = await genResetPassword(req);
-        if (result.code === 0) {
+        if (result["code"] === 0) {
             //重置成功，返回新token，直接登录
             if (result.data.token) {
                 localStorage.setItem('token', result.data.token);
-                globalData.token = result.data.token;
+                globalData["token"] = result.data.token;
                 ElMessage.success('重置密码成功');
                 router.push('/home');
             } else {
@@ -102,7 +102,7 @@ const resetPassword  = async () =>{
                 router.push('/login');
             }
         } else {
-            ElMessage.error(result.msg);
+            ElMessage.error(result["message"]);
         }
         
     }catch(err){
@@ -122,11 +122,11 @@ const sendCodeMail = async () => {
     
     try{
         let result = await genResetPassword(req);
-        if (result.code === 0) {
+        if (result["code"] === 0) {
             //重置成功，返回新token，直接登录
             ElMessage.success('邮件已成功发送，请查收');
         } else {
-            ElMessage.error(result.message);
+            ElMessage.error(result["message"]);
             return;
         }
         

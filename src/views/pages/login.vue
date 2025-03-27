@@ -20,7 +20,6 @@
             type="password"
             placeholder="密码"
             v-model="param.password"
-            @keyup.enter="submitForm(login)"
           >
             <template #prepend>
               <el-icon>
@@ -56,7 +55,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, inject } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
@@ -115,17 +114,17 @@ const onLogin = async () => {
   loginData.value.password = param.password;
   let result = await loginService(loginData);
   console.log("login result:", result);
-  if (result.code !== 0) {
+  if (result["code"] !== 0) {
     //alert(result.message);
     ElMessage.error("登录失败！用户名或密码错误");
     return;
   }
-  globalData.token = result.data;
+  globalData["token"] = result.data;
   localStorage.setItem("token", result.data.token);
   localStorage.setItem("userId", result.data.id);
   localStorage.setItem("username", result.data.username);
   let now = new Date();
-  localStorage.setItem("end_time", now.setDate(now.getHours() + 12)); //过期时间
+  localStorage.setItem("end_time", (now.setDate(now.getHours() + 12)).toString()); //过期时间
   await getMyUserInfo(result.data.id);
   //token.value= result.data;
 
@@ -139,18 +138,18 @@ const getMyUserInfo = async (id) => {
       id: id,
     };
     result = await GetUserInfoService(tokenData);
-    if (result.code === 0) {
+    if (result["code"] === 0) {
       //console.log("token data:",this.tokenData)
-      localStorage.setItem("video_func", result.data.VideoFunc);
-      localStorage.setItem("device_func", result.data.DeviceFunc);
-      localStorage.setItem("cid_func", result.data.CIDFunc);
-      localStorage.setItem("role", result.data.Role);
+      // localStorage.setItem("video_func", result.data.VideoFunc);
+      // localStorage.setItem("device_func", result.data.DeviceFunc);
+      // localStorage.setItem("cid_func", result.data.CIDFunc);
+      // localStorage.setItem("role", result.data.Role);
 
       ElMessage.success("登录成功");
-        localStorage.setItem("ms_username", result.data.Name);
+        localStorage.setItem("ms_username", result["data"]["Name"]);
         const keys =
-            permiss.defaultList[result.data.Role == "admin" ? "admin" : "user"];
-            localStorage.setItem("ms_imgurl", result.data.Avatar);
+            permiss.defaultList[result["data"]["Role"] == "admin" ? "admin" : "user"];
+            localStorage.setItem("ms_imgurl", result["data"]["Avatar"]);
         permiss.handleSet(keys);
         localStorage.setItem("ms_keys", JSON.stringify(keys));
         router.push("/");

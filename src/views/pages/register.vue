@@ -27,8 +27,7 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" placeholder="密码" v-model="param.password"
-                        @keyup.enter="submitForm(register)">
+                    <el-input type="password" placeholder="密码" v-model="param.password">
                         <template #prepend>
                             <el-icon>
                                 <Lock />
@@ -37,8 +36,7 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" placeholder="密码" v-model="param.repassword"
-                        @keyup.enter="submitForm(register)">
+                    <el-input type="password" placeholder="密码" v-model="param.repassword">
                         <template #prepend>
                             <el-icon>
                                 <Lock />
@@ -53,13 +51,15 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive,inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { registerService } from "@/api/user";
 import {GetUserInfoService} from "@/api/user";
+import { usePermissStore } from "@/store/permiss";
 const router = useRouter();
+const permiss = usePermissStore();
 
 const globalData = inject("globalData");
 const param = reactive({
@@ -98,17 +98,17 @@ const getMyUserInfo = async (id) => {
       id: id,
     }
     result = await GetUserInfoService(tokenData);
-    if (result.code === 0) {
+    if (result["code"] === 0) {
       //console.log("token data:",this.tokenData)
-      localStorage.setItem("video_func", result.data.VideoFunc);
-      localStorage.setItem("device_func", result.data.DeviceFunc);
-      localStorage.setItem("cid_func", result.data.CIDFunc);
-      localStorage.setItem("role", result.data.Role);
+    //   localStorage.setItem("video_func", result.data.VideoFunc);
+    //   localStorage.setItem("device_func", result.data.DeviceFunc);
+    //   localStorage.setItem("cid_func", result.data.CIDFunc);
+    //   localStorage.setItem("role", result.data.Role);
 
       ElMessage.success("注册成功");
-        localStorage.setItem("ms_username", result.data.Name);
+        localStorage.setItem("ms_username", result["data"]["Name"]);
         const keys =
-            permiss.defaultList[result.data.Role == "admin" ? "admin" : "user"];
+            permiss.defaultList[result["data"]["Role"] == "admin" ? "admin" : "user"];
         permiss.handleSet(keys);
         localStorage.setItem("ms_keys", JSON.stringify(keys));
         router.push("/");
@@ -140,12 +140,12 @@ const onRegister = async () => {
 
   let result = await registerService(registerData);
   if (result !== null) {
-    globalData.token = result.data;
+    globalData["token"] = result.data;
     localStorage.setItem("token", result.data.token);
     localStorage.setItem("userId", result.data.id);
     localStorage.setItem("username", result.data.username);
     let now = new Date();
-    localStorage.setItem("end_time", now.setDate(now.getHours() + 12)); //过期时间
+    localStorage.setItem("end_time", (now.setDate(now.getHours() + 12)).toString()); //过期时间
     //token.value= result.data;
     await getMyUserInfo(result.data.id);
     router.push("/home");

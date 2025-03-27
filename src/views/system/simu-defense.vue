@@ -6,6 +6,11 @@
 </template>
 
 <script lang="ts">
+import { ref } from 'vue';
+
+const data = ref({});
+
+
 </script>
 
 <style lang="scss" scoped>

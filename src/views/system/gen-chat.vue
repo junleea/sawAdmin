@@ -95,25 +95,27 @@ import { ElMessage } from "element-plus";
 import { GetMessageService } from "@/api/im";
 import {Check, Loading, DocumentCopy} from '@element-plus/icons-vue'
 import MarkdownIt from "markdown-it";
-import markdownItMermaid from "markdown-it-mermaid";
 import hljs from "highlight.js";
 import { Session } from "@/types/session";
-import bash from "highlight.js/lib/languages/bash";
 import { FindSessionService } from "@/api/session";
 import markdownItHighlightjs from 'markdown-it-highlightjs';
+import mermaid from 'mermaid';
+import markdownItMermaid from 'markdown-it-mermaid';
 import "katex/dist/katex.min.css";
 interface Message {
   role: "user" | "assistant";
   content: string;
   finished?: boolean;
 }
+mermaid.initialize({ startOnLoad: false });
 
 const md = new MarkdownIt();
-md.use(markdownItHighlightjs,{
+md.use(markdownItHighlightjs, {
   hljs,
   auto: true,
-  code: true
-})
+  code: true,
+});
+md.use(markdownItMermaid);
 
 const historySessions = ref<Session[]>([]);
 const loading = ref(false);
@@ -145,19 +147,44 @@ const copyCode = (code: string) => {
 const doButtonD = () => {
   const codeBlocks = document.querySelectorAll('pre code');
   codeBlocks.forEach((codeBlock) => {
+    // 获取代码类型
+    const codeType = codeBlock.className.replace('hljs ', '');
+    // 创建代码类型显示元素
+    const codeTypeElement = document.createElement('span');
+    codeTypeElement.textContent = codeType.split('-')[1];
+    codeTypeElement.setAttribute("background-color", "rgba(0, 0, 0, 0.1)");
+    codeTypeElement.setAttribute("padding", "3px 6px");
+    codeTypeElement.setAttribute("border-radius", "4px");
+    codeTypeElement.setAttribute("font-size", "0.9em");
+
     // 创建复制按钮
     const copyButton = document.createElement('button');
-    copyButton.textContent = '复制代码';
-    copyButton.classList.add('copy-code-button');
+    copyButton.setAttribute("background-color", "dodgerblue");
+    copyButton.setAttribute("display", "flex");
+    copyButton.setAttribute("align-items", "center");
+    copyButton.setAttribute("padding", "5px 10px");
+    copyButton.setAttribute("cursor", "pointer");
+    copyButton.setAttribute("border-radius", "4px");
+    copyButton.textContent = '复制';
+    copyButton.classList.add();
     copyButton.addEventListener('click', () => {
       copyCode(codeBlock.textContent);
     });
+
     // 设置代码块父元素的定位，以便按钮定位
     const pre = codeBlock.parentNode;
-    pre.style.position = 'relative';
-    // 将复制按钮添加到代码块父元素中
-    pre.appendChild(copyButton);
+    // pre.style.position = 'relative';
+
+    // 创建一个容器用于放置代码类型和复制按钮
+    const controlsContainer = document.createElement('div');
+    controlsContainer.classList.add('code-controls');
+    controlsContainer.appendChild(codeTypeElement);
+    controlsContainer.appendChild(copyButton);
+
+    // 将容器添加到代码块父元素中
+    pre.insertBefore(controlsContainer, codeBlock);
   });
+
 };
 
 onMounted(() => {
@@ -253,7 +280,7 @@ const loadSession = async (session_id: number) => {
   )?.Name;
   await getMessage(session_id);
   scrollToBottom();
-  //doButtonD();
+  doButtonD();
 };
 
 const clearCurrent = () => {
@@ -460,14 +487,27 @@ const copyMessage = (content: string) => {
   overflow-y: auto;
 }
 
-.copy-code-button {
+.code-controls {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 4px;
+  display: flex;
+  gap: 10px;
 }
+
+.copy-code-button {
+  background-color:dodgerblue;
+  color:white;
+  width: 30px;
+  height: 20px;
+  border:0;
+  display: flex;
+  align-items: center;
+}
+
+
+.el-icon-copy {
+  margin-right: 5px;
+}
+
 </style>
