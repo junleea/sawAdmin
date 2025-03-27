@@ -99,15 +99,14 @@ import hljs from "highlight.js";
 import { Session } from "@/types/session";
 import { FindSessionService } from "@/api/session";
 import markdownItHighlightjs from 'markdown-it-highlightjs';
-import mermaid from 'mermaid';
-import markdownItMermaid from 'markdown-it-mermaid';
+import markdownItKatex from 'markdown-it-katex';
+import mermaidPlugin from "@agoose77/markdown-it-mermaid";
 import "katex/dist/katex.min.css";
 interface Message {
   role: "user" | "assistant";
   content: string;
   finished?: boolean;
 }
-mermaid.initialize({ startOnLoad: false });
 
 const md = new MarkdownIt();
 md.use(markdownItHighlightjs, {
@@ -115,7 +114,10 @@ md.use(markdownItHighlightjs, {
   auto: true,
   code: true,
 });
-md.use(markdownItMermaid);
+md.use(markdownItKatex);
+md.use(mermaidPlugin);
+
+//md.use(markdownItMermaid);
 
 const historySessions = ref<Session[]>([]);
 const loading = ref(false);
@@ -147,6 +149,11 @@ const copyCode = (code: string) => {
 const doButtonD = () => {
   const codeBlocks = document.querySelectorAll('pre code');
   codeBlocks.forEach((codeBlock) => {
+    //先查看是否已经添加了复制按钮
+    if (codeBlock.parentNode.querySelector('.code-controls')) {
+      return;
+    }
+
     // 获取代码类型
     const codeType = codeBlock.className.replace('hljs ', '');
     // 创建代码类型显示元素
@@ -184,6 +191,7 @@ const doButtonD = () => {
     // 将容器添加到代码块父元素中
     pre.insertBefore(controlsContainer, codeBlock);
   });
+
 
 };
 
@@ -227,6 +235,7 @@ onMounted(() => {
       const assistantMessage = messages[messages.length - 1];
       assistantMessage.finished = true;
       loading.value = false;
+      doButtonD();
     }
     nextTick(() => {
       scrollToBottom(); // 新增滚动调用

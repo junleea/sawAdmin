@@ -2,6 +2,14 @@
 # yarn lockfile v1
 
 
+"@agoose77/markdown-it-mermaid@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@agoose77/markdown-it-mermaid/-/markdown-it-mermaid-1.1.0.tgz"
+  integrity sha512-DIDgGazLgcT3M60xJYXaiFZQG9UzkCl55mDpU+XucjHlPuTb80fYwZJr0Cw5uAqVScY1a4shY7QlNbObnVO4VQ==
+  dependencies:
+    markdown-it "^13.0.1"
+    mermaid "^9.1.7"
+
 "@antfu/install-pkg@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@antfu/install-pkg/-/install-pkg-1.0.0.tgz"
@@ -31,6 +39,11 @@
   integrity sha512-dkxf7+hn8mFBwKjs9bvBlArzLVxVbS8usaPUDd5p2a9JCL9tB8OaOVN1isD4+Xyk4ns89/xeOmbQvgdK7IIVdA==
   dependencies:
     regenerator-runtime "^0.14.0"
+
+"@braintree/sanitize-url@^6.0.0":
+  version "6.0.4"
+  resolved "https://registry.npmjs.org/@braintree/sanitize-url/-/sanitize-url-6.0.4.tgz"
+  integrity sha512-s3jaWicZd0pkP0jf5ysyHUI/RE7MHos6qlToFcGWXVp+ykHOy77OUMrfbgJ9it2C5bow7OIQwYYaHjk9XlBQ2A==
 
 "@braintree/sanitize-url@^6.0.1":
   version "6.0.4"
@@ -1164,14 +1177,14 @@ cytoscape-cose-bilkent@^4.1.0:
   dependencies:
     cose-base "^1.0.0"
 
-cytoscape-fcose@^2.2.0:
+cytoscape-fcose@^2.1.0, cytoscape-fcose@^2.2.0:
   version "2.2.0"
   resolved "https://registry.npmjs.org/cytoscape-fcose/-/cytoscape-fcose-2.2.0.tgz"
   integrity sha512-ki1/VuRIHFCzxWNrsshHYPs6L7TvLu3DL+TyIGEsRcvVERmxokbf5Gdk7mFxZnTdiGtnA4cfSmjZJMviqSuZrQ==
   dependencies:
     cose-base "^2.2.0"
 
-cytoscape@^3.2.0, cytoscape@^3.28.1, cytoscape@^3.29.3:
+cytoscape@^3.2.0, cytoscape@^3.23.0, cytoscape@^3.28.1, cytoscape@^3.29.3:
   version "3.31.1"
   resolved "https://registry.npmjs.org/cytoscape/-/cytoscape-3.31.1.tgz"
   integrity sha512-Hx5Mtb1+hnmAKaZZ/7zL1Y5HTFYOjdDswZy/jD+1WINRU8KVi1B7+vlHdsTwY+VCFucTreoyu1RDzQJ9u0d2Hw==
@@ -1476,6 +1489,14 @@ dagre-d3-es@7.0.11:
     d3 "^7.9.0"
     lodash-es "^4.17.21"
 
+dagre-d3-es@7.0.9:
+  version "7.0.9"
+  resolved "https://registry.npmjs.org/dagre-d3-es/-/dagre-d3-es-7.0.9.tgz"
+  integrity sha512-rYR4QfVmy+sR44IBDvVtcAmOReGBvRCWDpO2QjYwqgh9yijw6eSHBqaPG/LIOEy7aBsniLvtMW6pg19qJhq60w==
+  dependencies:
+    d3 "^7.8.2"
+    lodash-es "^4.17.21"
+
 dagre-d3-renderer@^0.4.25:
   version "0.4.26"
   resolved "https://registry.npmjs.org/dagre-d3-renderer/-/dagre-d3-renderer-0.4.26.tgz"
@@ -1559,6 +1580,11 @@ dompurify@^3.2.4:
   optionalDependencies:
     "@types/trusted-types" "^2.0.7"
 
+dompurify@2.4.3:
+  version "2.4.3"
+  resolved "https://registry.npmjs.org/dompurify/-/dompurify-2.4.3.tgz"
+  integrity sha512-q6QaLcakcRjebxjg8/+NP+h0rPfatOgOzc46Fst9VAA3jF2ApfKBNKMzdP4DYTqtUMXSCd5pRS/8Po/OmoCHZQ==
+
 eastasianwidth@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/eastasianwidth/-/eastasianwidth-0.2.0.tgz"
@@ -1607,6 +1633,11 @@ element-plus@^2.6.3:
     lodash-unified "^1.0.2"
     memoize-one "^6.0.0"
     normalize-wheel-es "^1.2.0"
+
+elkjs@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.npmjs.org/elkjs/-/elkjs-0.8.2.tgz"
+  integrity sha512-L6uRgvZTH+4OF5NE/MBbzQx/WYpru1xCBE9respNj6qznEewGUIfhzmm7horWWxbNO2M0WckQypGctR8lH79xQ==
 
 elkjs@^0.9.0:
   version "0.9.3"
@@ -2153,6 +2184,11 @@ magic-string@^0.30.7:
   dependencies:
     "@jridgewell/sourcemap-codec" "^1.4.15"
 
+markdown-it-emoji@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/markdown-it-emoji/-/markdown-it-emoji-3.0.0.tgz"
+  integrity sha512-+rUD93bXHubA4arpEZO3q80so0qgoFJEKRkRbjKX8RTdca89v2kfyF+xR3i2sQTwql9tpPZPOQN5B+PunspXRg==
+
 markdown-it-highlightjs@^4.2.0:
   version "4.2.0"
   resolved "https://registry.npmjs.org/markdown-it-highlightjs/-/markdown-it-highlightjs-4.2.0.tgz"
@@ -2173,6 +2209,17 @@ markdown-it-mermaid@^0.2.5:
   integrity sha512-ZUTFRX+cXEtWmn/9LMlpVklPJiDrHPWyHE/wamC2wm0Ojh1qOcuKWfWW3BqP83+7w6C59rS7M3OrGTs/u9mQTA==
   dependencies:
     mermaid "^7.1.2"
+
+markdown-it@^13.0.1:
+  version "13.0.2"
+  resolved "https://registry.npmjs.org/markdown-it/-/markdown-it-13.0.2.tgz"
+  integrity sha512-FtwnEuuK+2yVU7goGn/MJ0WBZMM9ZPgU9spqlFs7/A/pDIUNSOQZhUgOqYCficIuR2QaFnrt8LHqBWsbTAoI5w==
+  dependencies:
+    argparse "^2.0.1"
+    entities "~3.0.1"
+    linkify-it "^4.0.1"
+    mdurl "^1.0.1"
+    uc.micro "^1.0.5"
 
 markdown-it@^13.0.2:
   version "13.0.2"
@@ -2342,6 +2389,28 @@ mermaid@^7.1.2:
     he "^1.1.1"
     lodash "^4.17.4"
     moment "^2.20.1"
+
+mermaid@^9.1.7:
+  version "9.4.3"
+  resolved "https://registry.npmjs.org/mermaid/-/mermaid-9.4.3.tgz"
+  integrity sha512-TLkQEtqhRSuEHSE34lh5bCa94KATCyluAXmFnNI2PRZwOpXFeqiJWwZl+d2CcemE1RS6QbbueSSq9QIg8Uxcyw==
+  dependencies:
+    "@braintree/sanitize-url" "^6.0.0"
+    cytoscape "^3.23.0"
+    cytoscape-cose-bilkent "^4.1.0"
+    cytoscape-fcose "^2.1.0"
+    d3 "^7.4.0"
+    dagre-d3-es "7.0.9"
+    dayjs "^1.11.7"
+    dompurify "2.4.3"
+    elkjs "^0.8.2"
+    khroma "^2.0.0"
+    lodash-es "^4.17.21"
+    non-layered-tidy-tree-layout "^2.0.2"
+    stylis "^4.1.2"
+    ts-dedent "^2.2.0"
+    uuid "^9.0.0"
+    web-worker "^1.2.0"
 
 micromark-core-commonmark@^1.0.1:
   version "1.1.0"
@@ -3041,7 +3110,7 @@ strip-literal@^1.0.0:
   dependencies:
     acorn "^8.10.0"
 
-stylis@^4.1.3, stylis@^4.3.6:
+stylis@^4.1.2, stylis@^4.1.3, stylis@^4.3.6:
   version "4.3.6"
   resolved "https://registry.npmjs.org/stylis/-/stylis-4.3.6.tgz"
   integrity sha512-yQ3rwFWRfwNUY7H5vpU0wfdkNSnvnJinhF9830Swlaxl03zsOjCfmX0ugac+3LtK0lYSgwL/KXc8oYL3mG4YFQ==
