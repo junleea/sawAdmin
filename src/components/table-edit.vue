@@ -9,7 +9,7 @@
 					<el-input-number v-else-if="item.type === 'number'" v-model="form[item.prop]"
 						:disabled="item.disabled" controls-position="right"></el-input-number>
 					<el-select v-else-if="item.type === 'select'" v-model="form[item.prop]" :disabled="item.disabled"
-						:placeholder="item.placeholder" clearable>
+						:placeholder="item.placeholder" clearable >
 						<el-option v-for="opt in item.opts" :label="opt.label" :value="opt.value"></el-option>
 					</el-select>
 					<el-date-picker v-else-if="item.type === 'date'" type="date" v-model="form[item.prop]"

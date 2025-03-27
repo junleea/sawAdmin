@@ -200,6 +200,12 @@ export const menuData: Menus[] = [
         title: '通用人机对话',
     },
     {
+        id: '55',
+        icon: 'ChatDotSquare',
+        index: '/gen-prompt',
+        title: '提示词生成',
+    },
+    {
         id: '6',
         icon: 'DocumentAdd',
         index: '6',

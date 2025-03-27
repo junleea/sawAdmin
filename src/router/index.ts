@@ -69,6 +69,15 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "gen-chat" */ '../views/system/gen-chat.vue'),
             },
             {
+                path: '/gen-prompt',
+                name: 'gen-prompt',
+                meta: {
+                    title: 'prompt生成',
+                    permiss: '55',
+                },
+                component: () => import(/* webpackChunkName: "gen-prompt" */ '../views/system/prompt-gen.vue'),
+            },
+            {
                 path: '/system-role',
                 name: 'system-role',
                 meta: {

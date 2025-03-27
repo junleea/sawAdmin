@@ -51,6 +51,7 @@ export const usePermissStore = defineStore('permiss', {
                     '52', //模型管理
                     '53', //通用人机对话
                     '54', //功能管理
+                    '55', //提示词生成
                 ],
                 user: ['0', '8', '7','9',  '61','53'],
             },

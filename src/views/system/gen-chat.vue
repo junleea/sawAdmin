@@ -2,7 +2,7 @@
   <div class="chat-app">
     <!-- 历史会话侧边栏 -->
     <div class="history-sessions" v-if="sessionIsShow">
-      <div>
+        <div >
           <el-button type="primary" @click="clearCurrent">新会话</el-button>
         </div>
       <el-card class="session-card">
@@ -44,7 +44,7 @@
         </div>
       </div>
       <!-- 消息列表 -->
-      <el-card class="chat-messages" shadow="never" ref="messagesContainer">
+      <el-card class="chat-messages" shadow="never" ref="messagesContainer" v-if="messages.length > 0">
         <div
           v-for="(message, index) in messages"
           :key="index"
@@ -56,6 +56,10 @@
           </div>
           <div class="message-content">
             <div v-html="renderMarkdown(message.content)"></div>
+            <!-- 添加复制 -->
+            <div>
+            <el-button type="text" :icon="DocumentCopy" @click="copyMessage(message.content)"></el-button>
+          </div>
           </div>
         </div>
         <div v-if="loading" class="loading-indicator">Loading...</div>
@@ -89,22 +93,14 @@ import { ElCard, ElInput, ElButton } from "element-plus";
 import { WSMessage, AIQMessage, OllamaMessage } from "@/types/im";
 import { ElMessage } from "element-plus";
 import { GetMessageService } from "@/api/im";
-import {Check, Loading} from '@element-plus/icons-vue'
+import {Check, Loading, DocumentCopy} from '@element-plus/icons-vue'
 import MarkdownIt from "markdown-it";
 import markdownItMermaid from "markdown-it-mermaid";
 import hljs from "highlight.js";
 import { Session } from "@/types/session";
 import bash from "highlight.js/lib/languages/bash";
 import { FindSessionService } from "@/api/session";
-import javascript from "highlight.js/lib/languages/javascript";
-import typescript from "highlight.js/lib/languages/typescript";
-import java from "highlight.js/lib/languages/java";
-import sql from "highlight.js/lib/languages/sql";
-import nginx from "highlight.js/lib/languages/nginx";
-import json from "highlight.js/lib/languages/json";
-import yaml from "highlight.js/lib/languages/yaml";
-import xml from "highlight.js/lib/languages/xml";
-import shell from "highlight.js/lib/languages/shell";
+import markdownItHighlightjs from 'markdown-it-highlightjs';
 import "katex/dist/katex.min.css";
 interface Message {
   role: "user" | "assistant";
@@ -112,33 +108,12 @@ interface Message {
   finished?: boolean;
 }
 
-hljs.registerLanguage("bash", bash);
-hljs.registerLanguage("javascript", javascript);
-hljs.registerLanguage("typescript", typescript);
-hljs.registerLanguage("java", java);
-hljs.registerLanguage("sql", sql);
-hljs.registerLanguage("nginx", nginx);
-hljs.registerLanguage("json", json);
-hljs.registerLanguage("yaml", yaml);
-hljs.registerLanguage("xml", xml);
-hljs.registerLanguage("shell", shell);
-const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  breaks: true,
-  xhtmlOut: true,
-  typographer: true,
-  highlight: (str, lang) => {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return `<pre class="hljs"><code>${
-          hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
-        }</code></pre>`;
-      } catch (__) {}
-    }
-    return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
-  },
-});
+const md = new MarkdownIt();
+md.use(markdownItHighlightjs,{
+  hljs,
+  auto: true,
+  code: true
+})
 
 const historySessions = ref<Session[]>([]);
 const loading = ref(false);
@@ -161,6 +136,30 @@ const scrollToBottom = () => {
   x.scrollTop = x.scrollHeight; //将滚轮置底
 };
 
+const copyCode = (code: string) => {
+  navigator.clipboard.writeText(code).then(() => {
+    ElMessage.success("代码已复制到剪贴板");
+  });
+};
+
+const doButtonD = () => {
+  const codeBlocks = document.querySelectorAll('pre code');
+  codeBlocks.forEach((codeBlock) => {
+    // 创建复制按钮
+    const copyButton = document.createElement('button');
+    copyButton.textContent = '复制代码';
+    copyButton.classList.add('copy-code-button');
+    copyButton.addEventListener('click', () => {
+      copyCode(codeBlock.textContent);
+    });
+    // 设置代码块父元素的定位，以便按钮定位
+    const pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    // 将复制按钮添加到代码块父元素中
+    pre.appendChild(copyButton);
+  });
+};
+
 onMounted(() => {
   // if (typeof window !== 'undefined') {
   //   // 浏览器环境
@@ -175,7 +174,7 @@ onMounted(() => {
     console.log("WebSocket 连接已建立");
     ElMessage.success("连接成功");
   };
-  getMessage(125);
+  //getMessage(125);
   messagesContainer.value = document.querySelector(".chat-messages");
 
   socket.value.onmessage = (event) => {
@@ -253,6 +252,8 @@ const loadSession = async (session_id: number) => {
     (session) => session.ID == session_id
   )?.Name;
   await getMessage(session_id);
+  scrollToBottom();
+  //doButtonD();
 };
 
 const clearCurrent = () => {
@@ -312,6 +313,13 @@ const getMessage = async (session_id: number) => {
     console.log(e);
   }
   return {};
+};
+const copyMessage = (content: string) => {
+  navigator.clipboard.writeText(content).then(() => {
+    ElMessage.success('复制成功');
+  }).catch((error) => {
+    ElMessage.error('复制失败: ' + error);
+  });
 };
 </script>
 <style scoped>
@@ -450,5 +458,16 @@ const getMessage = async (session_id: number) => {
 .scroll-wrapper {
   height: 100%;
   overflow-y: auto;
+}
+
+.copy-code-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 </style>

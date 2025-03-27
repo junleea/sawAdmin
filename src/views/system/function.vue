@@ -124,7 +124,7 @@ let options_edit = ref<FormOption>({
     span: 12,
     list: [
         { type: 'input', label: '名称', prop: 'Name', required: true },
-        { type: 'select', label: '模型', prop: 'ModelID', required: true, opts:model_select_opts.value},
+        { type: 'select', label: '模型', prop: 'ModelID', required: true, opts:model_select_opts.value, multiple: true},
         { type: 'input', label: '功能', prop: 'Function', required: true },
         { type: 'input', label: '描述', prop: 'Info', required: true },
     ]

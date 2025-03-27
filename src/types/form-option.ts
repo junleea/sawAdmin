@@ -15,6 +15,7 @@ export interface FormOptionList {
     opts?: any[];
     format?: string;
     activeValue?: any;
+    multiple?: boolean;
     inactiveValue?: any;
     activeText?: string;
     inactiveText?: string;
