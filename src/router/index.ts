@@ -51,6 +51,15 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "system-user" */ '../views/system/function.vue'),
             },
             {
+                path: '/manage-file',
+                name: 'manage-file',
+                meta: {
+                    title: '文件管理',
+                    permiss: '56',
+                },
+                component: () => import(/* webpackChunkName: "system-user" */ '../views/system/manage-file.vue'),
+            },
+            {
                 path: '/manage-session',
                 name: 'manage-session',
                 meta: {

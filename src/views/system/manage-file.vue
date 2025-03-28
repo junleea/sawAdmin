@@ -28,14 +28,10 @@
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
-import { UserInfo } from '@/types/user';
 import { Session } from '@/types/session';
-import { fetchUserData } from '@/api';
-import { SearchUserService } from "@/api/user";
-import {FindSessionService} from "@/api/session";
-import {UpdateSessionService} from "@/api/session";
-import {AddSessionService} from "@/api/session";
-import {DelSessionService} from "@/api/session";
+import {FindUserFileService} from "@/api/file";
+import {UpdateUserFileService} from "@/api/file";
+import {DelUserFileService} from "@/api/file";
 import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
@@ -47,7 +43,7 @@ const page = reactive({
     size: 10,
     total: 122,
 })
-const tableData = ref<Session[]>([]);
+const tableData = ref<[]>([]);
 
 // 查询相关
 const query = reactive({
@@ -66,7 +62,7 @@ const handleSearch = async () => {
         type: "ID",
         id: parseInt(query.name)
     }
-    let result = await FindSessionService(req);
+    let result = await FindUserFileService(req);
     tableData.value = result.data;
     page.total = result.data.length;
 };
@@ -74,21 +70,20 @@ const handleSearch = async () => {
 // 表格相关
 let columns = ref([
     { type: 'index', label: '序号', width: 55, align: 'center' },
-    { prop: 'ID', label: '会话ID', width: 50 },
-    { prop: 'Name', label: '会话名' ,width: 300},
-    { prop: 'MsgCount', label: '消息数',width:50},
-    { prop: "Context", label: "会话背景参数" ,width: 100},
-    { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 150 },
-    { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 150 },
-    { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: true,label:"继续该会话"} }},
+    { prop: 'ID', label: '文件ID', width: 50 },
+    { prop: 'UserFileName', label: '文件名' ,width: 300},
+    { prop: "UploadType", label: "上传类型",width: 100},
+    { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 200 },
+    { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 200 },
+    { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: false,label:"继续该会话"} }},
 ])
 
 const getData = async () => {
     let req={
         token: localStorage.getItem('token'),
-        type: "UserID"
+        type: "all"
     }
-    let result = await FindSessionService(req);
+    let result = await FindUserFileService(req);
     tableData.value = result.data;
     page.total = result.data.length;
 };
@@ -104,7 +99,7 @@ let options = ref<FormOption>({
     labelWidth: '100px',
     span: 12,
     list: [
-        { type: 'input', label: '会话名称', prop: 'Name', required: true },
+        { type: 'input', label: '文件名称', prop: 'UserFileName', required: true },
     ]
 })
 
@@ -113,7 +108,7 @@ let options_edit = ref<FormOption>({
     labelWidth: '100px',
     span: 12,
     list: [
-        { type: 'input', label: '会话名称', prop: 'Name', required: true },
+        { type: 'input', label: '文件名称', prop: 'UserFileName', required: true },
     ]
 })
 
@@ -137,7 +132,7 @@ const updateData = async (data) => {
             id: data.ID,
             name: data.Name
         };
-        result = await UpdateSessionService(req)
+        result = await UpdateUserFileService(req)
         if (result["code"] === 0) {
           ElMessage.success("更新成功");
         } else {
@@ -200,7 +195,7 @@ const handleDelete = async (row: Session) => {
         id: row.ID,
     }
     try{
-        let result = await DelSessionService(req);
+        let result = await DelUserFileService(req);
         if(result["code"] === 0){
             ElMessage.success("删除成功");
             handleSearch();

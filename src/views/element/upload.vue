@@ -1,11 +1,13 @@
 <template>
     <div class="container">
         <div class="content-title">支持拖拽</div>
-        <div class="plugins-tips">
-            Element Plus自带上传组件。 访问地址：
-            <a href="https://element-plus.org/zh-CN/component/upload.html" target="_blank">Element Plus Upload</a>
-        </div>
-        <el-upload class="upload-demo" drag action="http://jsonplaceholder.typicode.com/api/posts/" multiple
+        <el-upload class="upload-demo" drag 
+           action="https://pm.ljsea.top/file/upload" multiple
+           :data="uploadData"
+           :headers="headers"
+            :on-success="handleSuccess"
+            :on-error="handleError"
+            :before-upload="beforeUpload"
             :on-change="handle">
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
             <div class="el-upload__text">
@@ -13,20 +15,51 @@
                 <em>点击上传</em>
             </div>
         </el-upload>
-
-        <div class="content-title">支持裁剪</div>
-        <div class="plugins-tips">
-            vue-cropper：一个简单的vue图片裁剪插件。 访问地址：
-            <a href="https://github.com/xyxiao001/vue-cropper" target="_blank">vue-cropper</a>。 示例请查看
-            <router-link to="/ucenter">个人中心-我的头像</router-link>
-        </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { ElMessage } from 'element-plus';
 const handle = (rawFile: any) => {
     console.log(rawFile);
 };
+
+interface UploadData {
+    upload_type: string;
+    auth_type: string;
+    md5: string;
+    type: string;
+  }
+const uploadData: UploadData = {
+    upload_type: 'file',
+    auth_type: 'public',
+    md5: '',
+    type: 'file',
+};
+const headers = {
+        "token": localStorage.getItem('token') || '',
+      };
+
+      const handleSuccess = (response: any, file: any, fileList: any) => {
+        let res = response;
+        if (res.code !== 0){
+            ElMessage.error(res.error);
+            return;
+        }
+        console.log('上传成功', res);
+        ElMessage.success('上传成功');
+      };
+  
+      const handleError = (error: any, file: any, fileList: any) => {
+        console.log('上传失败', error);
+        ElMessage.error('上传失败');
+      };
+  
+      const beforeUpload = (file: any) => {
+        // 可以在这里进行文件验证等操作
+        return true;
+      };
 </script>
 
 <style scoped>
@@ -39,6 +72,6 @@ const handle = (rawFile: any) => {
 }
 
 .upload-demo {
-    width: 360px;
+    width: 30%;
 }
 </style>

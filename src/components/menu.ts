@@ -36,7 +36,13 @@ export const menuData: Menus[] = [
                 pid: '1',
                 index: '/function',
                 title: '功能管理',
-            }
+            },
+            {
+                id: '56',
+                pid: '1',
+                index: '/manage-file',
+                title: '文件管理',
+            },
 
         ],
     },

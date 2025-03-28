@@ -2,9 +2,9 @@
   <div class="chat-app">
     <!-- 历史会话侧边栏 -->
     <div class="history-sessions" v-if="sessionIsShow">
-        <div >
-          <el-button type="primary" @click="clearCurrent">新会话</el-button>
-        </div>
+      <div>
+        <el-button type="primary" @click="clearCurrent">新会话</el-button>
+      </div>
       <el-card class="session-card">
         <template #header>
           <h3>当前会话</h3>
@@ -30,21 +30,26 @@
         </el-scrollbar>
       </el-card>
     </div>
+    <div>
+      <div @click="showSession" style="cursor: pointer">
+        <el-icon v-if="sessionIsShow">
+          <Expand />
+        </el-icon>
+        <el-icon v-else>
+          <Fold />
+        </el-icon>
+      </div>
+    </div>
 
     <!-- 原有的聊天区域 -->
     <div class="chat-container">
-      <div>
-        <div @click="showSession" style="cursor: pointer">
-          <el-icon v-if="sessionIsShow">
-            <Expand />
-          </el-icon>
-          <el-icon v-else>
-            <Fold />
-          </el-icon>
-        </div>
-      </div>
       <!-- 消息列表 -->
-      <el-card class="chat-messages" shadow="never" ref="messagesContainer" v-if="messages.length > 0">
+      <el-card
+        class="chat-messages"
+        shadow="never"
+        ref="messagesContainer"
+        v-if="messages.length > 0"
+      >
         <div
           v-for="(message, index) in messages"
           :key="index"
@@ -58,8 +63,12 @@
             <div v-html="renderMarkdown(message.content)"></div>
             <!-- 添加复制 -->
             <div>
-            <el-button type="text" :icon="DocumentCopy" @click="copyMessage(message.content)"></el-button>
-          </div>
+              <el-button
+                type="text"
+                :icon="DocumentCopy"
+                @click="copyMessage(message.content)"
+              ></el-button>
+            </div>
           </div>
         </div>
         <div v-if="loading" class="loading-indicator">Loading...</div>
@@ -72,14 +81,24 @@
             <el-input
               v-model="inputMessage"
               type="textarea"
-              :rows="2"
+              :rows="5"
               placeholder="输入消息..."
               @keyup.enter="sendMessage"
             />
-            <el-text v-model="inputMessage" aria-placeholder="输入信息...."></el-text>
+            <el-text
+              v-model="inputMessage"
+              aria-placeholder="输入信息...."
+            ></el-text>
           </el-col>
           <el-col :span="4" style="text-align: center">
-            <el-button  @click="sendMessage" type="success" :icon="Check" round :disabled="loading">发送</el-button>
+            <el-button
+              @click="sendMessage"
+              type="success"
+              :icon="Check"
+              round
+              :disabled="loading"
+              >发送</el-button
+            >
           </el-col>
         </el-row>
       </el-card>
@@ -93,13 +112,13 @@ import { ElCard, ElInput, ElButton } from "element-plus";
 import { WSMessage, AIQMessage, OllamaMessage } from "@/types/im";
 import { ElMessage } from "element-plus";
 import { GetMessageService } from "@/api/im";
-import {Check, Loading, DocumentCopy} from '@element-plus/icons-vue'
+import { Check, Loading, DocumentCopy } from "@element-plus/icons-vue";
 import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
 import { Session } from "@/types/session";
 import { FindSessionService } from "@/api/session";
-import markdownItHighlightjs from 'markdown-it-highlightjs';
-import markdownItKatex from 'markdown-it-katex';
+import markdownItHighlightjs from "markdown-it-highlightjs";
+import markdownItKatex from "markdown-it-katex";
 import mermaidPlugin from "@agoose77/markdown-it-mermaid";
 import "katex/dist/katex.min.css";
 interface Message {
@@ -147,34 +166,34 @@ const copyCode = (code: string) => {
 };
 
 const doButtonD = () => {
-  const codeBlocks = document.querySelectorAll('pre code');
+  const codeBlocks = document.querySelectorAll("pre code");
   codeBlocks.forEach((codeBlock) => {
     //先查看是否已经添加了复制按钮
-    if (codeBlock.parentNode.querySelector('.code-controls')) {
+    if (codeBlock.parentNode.querySelector(".code-controls")) {
       return;
     }
 
     // 获取代码类型
-    const codeType = codeBlock.className.replace('hljs ', '');
+    const codeType = codeBlock.className.replace("hljs ", "");
     // 创建代码类型显示元素
-    const codeTypeElement = document.createElement('span');
-    codeTypeElement.textContent = codeType.split('-')[1];
+    const codeTypeElement = document.createElement("span");
+    codeTypeElement.textContent = codeType.split("-")[1];
     codeTypeElement.setAttribute("background-color", "rgba(0, 0, 0, 0.1)");
     codeTypeElement.setAttribute("padding", "3px 6px");
     codeTypeElement.setAttribute("border-radius", "4px");
     codeTypeElement.setAttribute("font-size", "0.9em");
 
     // 创建复制按钮
-    const copyButton = document.createElement('button');
+    const copyButton = document.createElement("button");
     copyButton.setAttribute("background-color", "dodgerblue");
     copyButton.setAttribute("display", "flex");
     copyButton.setAttribute("align-items", "center");
     copyButton.setAttribute("padding", "5px 10px");
     copyButton.setAttribute("cursor", "pointer");
     copyButton.setAttribute("border-radius", "4px");
-    copyButton.textContent = '复制';
+    copyButton.textContent = "复制";
     copyButton.classList.add();
-    copyButton.addEventListener('click', () => {
+    copyButton.addEventListener("click", () => {
       copyCode(codeBlock.textContent);
     });
 
@@ -183,16 +202,14 @@ const doButtonD = () => {
     // pre.style.position = 'relative';
 
     // 创建一个容器用于放置代码类型和复制按钮
-    const controlsContainer = document.createElement('div');
-    controlsContainer.classList.add('code-controls');
+    const controlsContainer = document.createElement("div");
+    controlsContainer.classList.add("code-controls");
     controlsContainer.appendChild(codeTypeElement);
     controlsContainer.appendChild(copyButton);
 
     // 将容器添加到代码块父元素中
     pre.insertBefore(controlsContainer, codeBlock);
   });
-
-
 };
 
 onMounted(() => {
@@ -250,6 +267,7 @@ onMounted(() => {
   };
 
   socket.value.onerror = (error) => {
+    socket.value = new WebSocket(url);
     console.error("WebSocket 发生错误:", error);
   };
 });
@@ -271,10 +289,20 @@ const sendMessage = () => {
     function: "gen-ai-chat",
     session_id: sessionID.value,
   };
+  try {
+    socket.value.send(JSON.stringify(msg));
+  } catch (e) {
+    ElMessage.error("发送失败!连接已断开！");
+    return;
+  }
+  if (sessionID.value == 0) {
+    sessionName.value = inputMessage.value;
+  }
   messages.push({ role: "user", content: inputMessage.value, finished: true });
-  socket.value.send(JSON.stringify(msg));
   inputMessage.value = "";
-  scrollToBottom();
+  nextTick(() => {
+      scrollToBottom(); // 新增滚动调用
+    });
   loading.value = true;
   if (sessionID.value == 0) {
     sessionName.value = msg.msg;
@@ -351,11 +379,14 @@ const getMessage = async (session_id: number) => {
   return {};
 };
 const copyMessage = (content: string) => {
-  navigator.clipboard.writeText(content).then(() => {
-    ElMessage.success('复制成功');
-  }).catch((error) => {
-    ElMessage.error('复制失败: ' + error);
-  });
+  navigator.clipboard
+    .writeText(content)
+    .then(() => {
+      ElMessage.success("复制成功");
+    })
+    .catch((error) => {
+      ElMessage.error("复制失败: " + error);
+    });
 };
 </script>
 <style scoped>
@@ -393,6 +424,7 @@ const copyMessage = (content: string) => {
   display: flex;
   flex-direction: column;
   padding: 20px;
+  height: 100%;
   box-sizing: border-box;
 }
 
@@ -401,7 +433,8 @@ const copyMessage = (content: string) => {
   overflow-y: auto; /* 允许垂直滚动 */
   padding: 10px;
   margin-bottom: 20px;
-  scrollbar-width: 20px;
+  scrollbar-width: 10px;
+  height: 90%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -505,18 +538,16 @@ const copyMessage = (content: string) => {
 }
 
 .copy-code-button {
-  background-color:dodgerblue;
-  color:white;
+  background-color: dodgerblue;
+  color: white;
   width: 30px;
   height: 20px;
-  border:0;
+  border: 0;
   display: flex;
   align-items: center;
 }
 
-
 .el-icon-copy {
   margin-right: 5px;
 }
-
 </style>
