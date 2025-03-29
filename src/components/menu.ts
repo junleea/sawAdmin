@@ -20,12 +20,6 @@ export const menuData: Menus[] = [
                 title: '用户管理',
             },
             {
-                id: '51',
-                pid: '1',
-                index: '/manage-session',
-                title: '会话管理',
-            },
-            {
                 id: '52',
                 pid: '1',
                 index: '/manage-model',
@@ -37,13 +31,29 @@ export const menuData: Menus[] = [
                 index: '/function',
                 title: '功能管理',
             },
+            
+
+        ],
+    },
+    {
+        'id': '71',
+        'title': '用户功能管理',
+        'index': '71',
+        'icon': 'HomeFilled',
+        'children': [
+            {
+                id: '51',
+                pid: '1',
+                index: '/manage-session',
+                title: '会话管理',
+            },
             {
                 id: '56',
                 pid: '1',
                 index: '/manage-file',
                 title: '文件管理',
             },
-
+            
         ],
     },
     {

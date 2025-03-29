@@ -13,21 +13,6 @@
                 <el-button @click="resetSystemTheme">重置主题</el-button>
             </div>
         </el-card>
-        <el-card class="mgb20" shadow="hover">
-            <template #header>
-                <div class="content-title">Element-Plus主题</div>
-            </template>
-            <div class="theme-list mgb20">
-                <div class="theme-item" v-for="theme in themes">
-                    <el-button :type="theme.name">{{ theme.name }}</el-button>
-                    <div class="theme-color">{{ theme.color }}</div>
-                    <el-color-picker v-model="color[theme.name]" @change="changeColor(theme.name)" />
-                </div>
-            </div>
-            <div class="flex-center">
-                <el-button @click="resetTheme">重置主题</el-button>
-            </div>
-        </el-card>
 
         <el-row :gutter="50">
             <el-col :span="12">
