@@ -12,7 +12,7 @@ export const usePermissStore = defineStore('permiss', {
             defaultList: <ObjectList>{
                 admin: [
                     '0',
-                    '1',
+                    '1', //系统管理
                     '11', //用户管理
                     '12',
                     '13',
@@ -54,7 +54,7 @@ export const usePermissStore = defineStore('permiss', {
                     '55', //提示词生成
                     '56', //文件管理
                 ],
-                user: ['0', '8', '7','9',  '61','53'],
+                user: ['0', '1' ,'8', '7','9',  '61','53','51','56'],
             },
         };
     },

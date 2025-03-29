@@ -1,9 +1,9 @@
 <template>
     <div>
-        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" />
+        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" :refresh="getData" />
         <div class="container">
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
-                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit">
+                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit" :genOperate="handleGenOperate" :refresh="getData">
                 <template #toolbarBtn>
                     <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">新增</el-button>
                 </template>
@@ -80,7 +80,7 @@ let columns = ref([
     { prop: "Context", label: "会话背景参数" ,width: 100},
     { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 150 },
     { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 150 },
-    { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: true,label:"继续该会话"} }},
+    { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: true,label:"继续该会话"},gen: {show: false,label:"下载文件"}}},
 ])
 
 const getData = async () => {
@@ -98,6 +98,10 @@ const changePage = (val: number) => {
     page.index = val;
     getData();
 };
+
+const handleGenOperate = async (row: File) => {
+    console.log("gen row:", row);
+}
 
 // 新增弹窗
 let options = ref<FormOption>({

@@ -1,9 +1,9 @@
 <template>
     <div>
-        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" />
+        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" :refresh="getData" />
         <div class="container">
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
-                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit">
+                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit" :genOperate="handleGenOperate" :refresh="getData">
                 <template #toolbarBtn>
                     <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">新增</el-button>
                 </template>
@@ -74,7 +74,7 @@ let columns = ref([
     { prop: 'Parameter', label: '参数', width: 250 },
     {prop: 'Url', label: 'URl'},
     { prop: 'CreatedAt', label: '创建时间',type: 'date' },
-    { prop: 'operator', label: '操作', width: 250 , operate: { view: true, edit: true, delete: true,push: {link: false,label:"继续该会话"} }},
+    { prop: 'operator', label: '操作', width: 250 , operate: { view: true, edit: true, delete: true,push: {link: false,label:"继续该会话"},gen: {show: false,label:"下载文件"} }},
 ])
 const page = reactive({
     index: 1,
@@ -189,6 +189,10 @@ const closeDialog = () => {
     visible_add.value = false;
     isEdit.value = false;
 };
+
+const handleGenOperate = async (row: File) => {
+    console.log("gen row:", row);
+}
 
 // 查看详情弹窗相关
 const visible1 = ref(false);

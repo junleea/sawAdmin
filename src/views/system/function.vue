@@ -1,9 +1,9 @@
 <template>
     <div>
-        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" />
+        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" :refresh="getData" />
         <div class="container">
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
-                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit">
+                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit" :refresh="getData">
                 <template #toolbarBtn>
                     <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">新增</el-button>
                 </template>
@@ -73,7 +73,7 @@ let columns = ref([
     { prop: 'Function', label: '功能' },
     { prop: 'Info', label: '描述信息' },
     { prop: 'CreatedAt', label: '创建时间',type: 'date' },
-    { prop: 'operator', label: '操作', width: 250 , operate: { view: true, edit: true, delete: true,push: {link: false,label:"继续该会话"} }},
+    { prop: 'operator', label: '操作', width: 250 , operate: { view: true, edit: true, delete: true,push: {link: false,label:"继续该会话"},gen: {show: false,label:"下载文件"} }},
 ])
 const page = reactive({
     index: 1,

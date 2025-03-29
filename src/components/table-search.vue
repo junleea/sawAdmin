@@ -14,7 +14,7 @@
 			</el-form-item>
 			<el-form-item>
 				<el-button type="primary" :icon="Search" @click="search">搜索</el-button>
-				<el-button :icon="Refresh" @click="resetForm(searchRef)">重置</el-button>
+				<el-button :icon="Refresh" @click="refresh">重置</el-button>
 			</el-form-item>
 		</el-form>
 	</div>
@@ -36,6 +36,10 @@ const props = defineProps({
 		required: true
 	},
 	search: {
+		type: Function,
+		default: () => { }
+	},
+	refresh: {
 		type: Function,
 		default: () => { }
 	}

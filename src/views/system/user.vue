@@ -1,6 +1,6 @@
 <template>
     <div>
-        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" />
+        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" :refresh="getData" />
         <div class="container">
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
                 :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit">
@@ -73,7 +73,7 @@ let columns = ref([
     { prop: 'Role', label: '角色' },
     { prop: 'CreatedAt', label: '创建时间',type: 'date' },
     { prop: 'Email', label: '邮箱' },
-    { prop: 'operator', label: '操作', width: 250 ,operate: { view: true, edit: true, delete: true ,push: {link: false,label:"继续该会话"}}},
+    { prop: 'operator', label: '操作', width: 250 ,operate: { view: true, edit: true, delete: true ,push: {link: false,label:"继续该会话"},gen: {show: false,label:"下载文件"}}},
 ])
 const page = reactive({
     index: 1,

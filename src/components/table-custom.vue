@@ -59,6 +59,9 @@
                                 <el-button type="danger" size="small" :icon="Link" @click="handlePush(row)" v-if="item.operate.push.link">
                                     {{item.operate.push.label}}
                                 </el-button>
+                                <el-button type="danger" size="small" :icon="Link" @click="genOperate(row)" v-if="item.operate.gen.show">
+                                    {{item.operate.gen.label}}
+                                </el-button>
                             </template>
                             <span v-else-if="item.formatter">
                                 {{ item.formatter(row[item.prop]) }}
@@ -147,7 +150,11 @@ const props = defineProps({
     changePage: {
         type: Function,
         default: () => { }
-    }
+    },
+    genOperate: {
+        type: Function,
+        default: () => { }
+    },
 })
 
 let {
@@ -197,6 +204,13 @@ const handlePush = (row) => {
             router.push("/gen-chat");
         })
         .catch(() => { });
+};
+
+const handleGen = (row) => {
+    async () => {
+        console.log("gen row:", row);
+                props.genOperate(row);
+            }
 };
 
 const getIndex = (index: number) => {

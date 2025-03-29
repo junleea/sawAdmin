@@ -1,11 +1,11 @@
 <template>
     <div>
-        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" />
+        <TableSearch :query="query" :options="searchOpt" :search="handleSearch" :refresh="getData" />
         <div class="container">
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
-                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit">
+                :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit" :genOperate="handleGenOperate" :refresh="getData">
                 <template #toolbarBtn>
-                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">新增</el-button>
+                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">上传文件</el-button>
                 </template>
             </TableCustom>
 
@@ -14,9 +14,9 @@
             :close-on-click-modal="false" @close="closeDialog">
             <TableEdit :form-data="rowData" :options="options_edit" :edit="isEdit" :update="updateData" />
         </el-dialog>
-        <el-dialog :title="isAdd ? '新增' : '新增'" v-model="visible_add" width="700px" destroy-on-close
+        <el-dialog :title="isAdd ? '上传' : '上传'" v-model="visible_add" width="700px" destroy-on-close
             :close-on-click-modal="false" @close="closeDialog">
-            <TableEdit :form-data="rowData" :options="options" :edit="isAdd" :update="addData" />
+           <UploadFile></UploadFile>
         </el-dialog>
         <el-dialog title="查看详情" v-model="visible1" width="700px" destroy-on-close>
             <TableDetail :data="viewData"></TableDetail>
@@ -26,15 +26,17 @@
 
 <script setup lang="ts" name="system-user">
 import { ref, reactive } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage,ElMessageBox } from 'element-plus';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
 import { Session } from '@/types/session';
 import {FindUserFileService} from "@/api/file";
 import {UpdateUserFileService} from "@/api/file";
 import {DelUserFileService} from "@/api/file";
+import { File,fileUrl } from '@/types/file';
 import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
+import UploadFile from '@/components/upload-file.vue';
 import { FormOption, FormOptionList } from '@/types/form-option';
 
 const userRole = localStorage.getItem('role') == 'admin';
@@ -43,14 +45,14 @@ const page = reactive({
     size: 10,
     total: 122,
 })
-const tableData = ref<[]>([]);
+const tableData = ref<File[]>([]);
 
 // 查询相关
 const query = reactive({
     name: '',
 });
 const searchOpt = ref<FormOptionList[]>([
-    { type: 'input', label: '会话ID：', prop: 'name' }
+    { type: 'input', label: '文件名：', prop: 'name' }
 ])
 const handleSearch = async () => {
     // if (isFinite(query.name) == false){
@@ -59,8 +61,12 @@ const handleSearch = async () => {
     // }
     let req={
         token: localStorage.getItem('token'),
-        type: "ID",
-        id: parseInt(query.name)
+        type: "search",
+        file_name: query.name,
+    }
+    if (!req.file_name) {
+        ElMessage.error("请求参数不能为空");
+        return;
     }
     let result = await FindUserFileService(req);
     tableData.value = result.data;
@@ -75,7 +81,8 @@ let columns = ref([
     { prop: "UploadType", label: "上传类型",width: 100},
     { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 200 },
     { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 200 },
-    { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: false,label:"继续该会话"} }},
+    { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: false,label:"继续该会话"} ,gen: {show: true,label:"下载文件"}},
+         align: 'center', fixed: 'right' },
 ])
 
 const getData = async () => {
@@ -129,9 +136,15 @@ const updateData = async (data) => {
       try{
         let req={
             token:localStorage.getItem("token"),
-            id: data.ID,
-            name: data.Name
+            file_id: data.ID,
+            file_name: data.UserFileName,
         };
+        console.log("update row data:", req);
+        //检查请求参数
+        if (!req.file_name) {
+            ElMessage.error("请求参数错误");
+            return;
+        }
         result = await UpdateUserFileService(req)
         if (result["code"] === 0) {
           ElMessage.success("更新成功");
@@ -143,7 +156,7 @@ const updateData = async (data) => {
         console.log(e);
       }
       closeDialog();
-    handleSearch();
+    getData();
 };
 
 const addData = async (data) => {
@@ -153,7 +166,7 @@ const addData = async (data) => {
             token:localStorage.getItem("token"),
             name: data.Name
         };
-        result = await AddSessionService(req)
+        //result = await AddSessionService(req)
         if (result["code"] === 0) {
           ElMessage.success("新增成功");
         } else {
@@ -180,7 +193,7 @@ const viewData = ref({
     row: {},
     list: []
 });
-const handleView =async (row: Session) => {
+const handleView =async (row: File) => {
     viewData.value.row = row;
     viewData.value.list = [
         
@@ -188,8 +201,38 @@ const handleView =async (row: Session) => {
     visible1.value = true;
 };
 
+const handleGenOperate = async (row: File) => {
+    console.log("gen row:", row);
+    //弹出提示框
+    ElMessageBox.confirm('确定要下载吗？', '提示', {
+        type: 'warning'
+    })
+        .then(async () => {
+            // 处理下载逻辑
+            downloadFile(row);
+        })
+        .catch(() => { });
+    
+}
+const downloadFile = async (row: File) => {
+    const fileUrl_ = fileUrl+row.file_store_name;
+    const response = await fetch(fileUrl_)
+    const blob = await response.blob()
+    
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = row.UserFileName // 设置下载的文件名
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    // 释放内存
+    window.URL.revokeObjectURL(url)
+    ElMessage.success('文件下载成功')
+};
 // 删除相关
-const handleDelete = async (row: Session) => {
+const handleDelete = async (row: File) => {
     let req={
         token: localStorage.getItem('token'),
         id: row.ID,
