@@ -48,6 +48,10 @@ const searchOpt = ref<FormOptionList[]>([
 const handleSearch = async () => {
     let search_id= -1;
     let keyword_ = "";
+    if (query.name === ''){
+        ElMessage.error('请输入用户名或ID');
+        return;
+    }
     try{
         search_id = parseInt(query.name);
     }catch(e){

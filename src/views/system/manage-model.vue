@@ -39,6 +39,7 @@ import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
 import { FormOption, FormOptionList } from '@/types/form-option';
+import { number } from 'echarts';
 
 const userRole = localStorage.getItem('role') == 'admin';
 
@@ -53,6 +54,10 @@ const handleSearch = async () => {
     // query.name是否是数字
     if (isNaN(Number(query.name))) {
         ElMessage.error('请输入数字');
+        return;
+    }
+    if (query.name === '') {
+        ElMessage.error('请输入模型ID');
         return;
     }
     let req={

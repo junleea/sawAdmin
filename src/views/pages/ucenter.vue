@@ -11,13 +11,16 @@
                 </div>
                 <div class="user-footer">
                     <div class="user-footer-item">
-                        <el-statistic title="提问数" :value="1800" />
+                        <el-statistic title="提问数" :value="userStatistic.question" />
                     </div>
                     <div class="user-footer-item">
-                        <el-statistic title="会话数" :value="666" />
+                        <el-statistic title="会话数" :value="userStatistic.session" />
                     </div>
                     <div class="user-footer-item">
-                        <el-statistic title="总计" :value="888" />
+                        <el-statistic title="文件数" :value="userStatistic.file_count" />
+                    </div>
+                    <div class="user-footer-item">
+                        <el-statistic title="总计" :value="userStatistic.total" />
                     </div>
                 </div>
             </el-card>
@@ -81,6 +84,7 @@ import 'vue-cropper/dist/index.css';
 import avatar from '@/assets/img/img.jpg';
 import TabsComp from '../element/tabs.vue';
 import {GetUserInfoService} from "@/api/user";
+import { GetUserStatisticService } from "@/api/user";
 import { UploadFileService } from "@/api/tool";
 import { UserInfo } from '@/types/user';
 import { FormOption, FormOptionList } from '@/types/form-option';
@@ -95,6 +99,12 @@ const form = reactive({
     new1: '',
     new: '',
     old: '',
+});
+const userStatistic = reactive({
+    question: 0,
+    session: 0,
+    total: 0,
+    file_count: 0,
 });
 const userInfo = ref<UserInfo>();
 const isUserInfoLoaded = ref(false);
@@ -241,6 +251,27 @@ const dataURLtoFile = (dataurl, filename) => {
     }
     return new File([u8arr], filename, { type: mime });
 };
+
+const getUserStatistics = async () => {
+    let req = {
+        token: localStorage.getItem('token'),
+        id: localStorage.getItem('userId')
+    };
+    try{
+        let result = await GetUserStatisticService(req);
+        if (result["code"] == 0) {
+            userStatistic.question = result.data.message_count;
+            userStatistic.session = result.data.session_count;
+            userStatistic.file_count = result.data.file_count;
+            userStatistic.total = userStatistic.question + userStatistic.session + userStatistic.file_count;
+        }else{
+            ElMessage.error(result["msg"]);
+        }
+    }catch(e){
+        console.log(e);
+    }
+};
+getUserStatistics();
 
 
 const saveAvatar =async () => {

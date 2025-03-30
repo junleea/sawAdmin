@@ -135,6 +135,18 @@ export const SearchUserService = (Data) => {
     })
 }
 
+export const GetUserStatisticService = (Data) => {
+    const params = new URLSearchParams();
+    for (let key in Data) {
+        params.append(key, Data[key])
+    }
+    return request.post('/user/statistic', params,{
+        headers: {
+            'token': Data.token,   
+        }
+    })
+}
+
 
 export const getQRService = (qrData) => {
     const params = new URLSearchParams();

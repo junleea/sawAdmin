@@ -61,11 +61,22 @@ const handleSearch = async () => {
     //     ElMessage.error("请输入正确的会话ID");
     //     return;
     // }
-    let req={
+    let req={}
+    try{
+        req={
         token: localStorage.getItem('token'),
         type: "ID",
         id: parseInt(query.name)
+        }
+    }catch(e){
+        console.log(e);
+        ElMessage.error("请输入正确的会话ID");
     }
+    if (query.name == ""){
+        ElMessage.error("请输入会话ID");
+        return;
+    }
+    
     let result = await FindSessionService(req);
     tableData.value = result.data;
     page.total = result.data.length;
