@@ -48,7 +48,7 @@ const routes: RouteRecordRaw[] = [
                     title: '功能管理',
                     permiss: '54',
                 },
-                component: () => import(/* webpackChunkName: "system-user" */ '../views/system/function.vue'),
+                component: () => import(/* webpackChunkName: "system-user" */ '../views/system/manage-function.vue'),
             },
             {
                 path: '/manage-file',

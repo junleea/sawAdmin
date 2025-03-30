@@ -124,7 +124,7 @@ let options_edit = ref<FormOption>({
     span: 12,
     list: [
         { type: 'input', label: '名称', prop: 'Name', required: true },
-        { type: 'select', label: '模型', prop: 'ModelID', required: true, opts:model_select_opts.value, multiple: true},
+        { type: 'select', label: '模型', prop: 'ModelIDS', required: true, opts:model_select_opts.value, multiple: true},
         { type: 'input', label: '功能', prop: 'Function', required: true },
         { type: 'input', label: '描述', prop: 'Info', required: true },
     ]
@@ -138,19 +138,26 @@ const rowData = ref({});
 const handleEdit = async (row: Function) => {
     let data = row;
     rowData.value = data;
-    console.log("edit_row_data:", rowData.value);
+    //console.log("edit_row_data:", rowData.value);
     isEdit.value = true;
     visible.value = true;
 };
 const updateData = async (data) => {
+    let model_id =[]
+    let model_id_list= data["ModelID"]
+    for (let i = 0; i < model_id_list.length; i++) {
+        model_id.push({"id":model_id_list[i]})
+    }
+    let model_ids = JSON.stringify(model_id)
     let result ={}
       try{
         let req={
             token:localStorage.getItem("token"),
             id: data.ID,
             name: data.Name,
-            model_id: data.ModelID,
+            model_id: model_id_list[0],
             function: data.Function,
+            model_ids: model_ids,
             info: data.Info
         };
         result = await UpdateFunctionService(req)

@@ -9,7 +9,7 @@
 					<el-input-number v-else-if="item.type === 'number'" v-model="form[item.prop]"
 						:disabled="item.disabled" controls-position="right"></el-input-number>
 					<el-select v-else-if="item.type === 'select'" v-model="form[item.prop]" :disabled="item.disabled"
-						:placeholder="item.placeholder" clearable >
+						:placeholder="item.placeholder" clearable :multiple="item.multiple?true:false">
 						<el-option v-for="opt in item.opts" :label="opt.label" :value="opt.value"></el-option>
 					</el-select>
 					<el-date-picker v-else-if="item.type === 'date'" type="date" v-model="form[item.prop]"
@@ -39,6 +39,7 @@
 
 <script lang="ts" setup>
 import { FormOption } from '@/types/form-option';
+import { json } from 'd3';
 import { FormInstance, FormRules, UploadProps } from 'element-plus';
 import { PropType, ref } from 'vue';
 
@@ -62,7 +63,30 @@ const { options, formData, edit, update } = defineProps({
 });
 
 
-const form = ref({ ...(edit ? formData : {}) });
+//const form = ref({ ...(edit ? formData : {}) });
+const form = ref();
+
+const doFormData = () => {
+	let a={}
+	let initialForm = { ...(edit ? formData : {}) };
+	
+	options.list.forEach(item => {
+        if (item.type === 'select' && item.multiple) {
+			let ids = formData[item.prop];
+			let id_list = JSON.parse(ids);
+			console.log(id_list);
+			let selectedValues = [];
+			for (let i = 0; i < id_list.length; i++) {
+				selectedValues.push(id_list[i]["id"]);
+			}
+            if (!Array.isArray(initialForm[item.prop])) {
+                initialForm[item.prop] = selectedValues;
+            }
+        }
+    });
+	return initialForm;
+};
+form.value=doFormData();
 
 const rules: FormRules = options.list.map(item => {
 	if (item.required) {
