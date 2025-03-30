@@ -7,4 +7,5 @@ export interface Session {
     Countext: any;
     Name: string;
     UserID: number;
+    TokenUsage: number; //消耗大模型的token
 }

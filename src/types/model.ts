@@ -9,6 +9,7 @@ export interface Model{
     Type: string;
     Parameter: string;
     Description: string;
+    token: number; //消耗大模型的token
 }
 
 export interface ModelParameter{

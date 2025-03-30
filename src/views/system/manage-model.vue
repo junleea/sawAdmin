@@ -78,6 +78,7 @@ let columns = ref([
     {prop: 'Description', label: '描述'},
     { prop: 'Parameter', label: '参数', width: 250 },
     {prop: 'Url', label: 'URl'},
+    { prop: 'token', label: '消耗token数',width:50},
     { prop: 'CreatedAt', label: '创建时间',type: 'date' },
     { prop: 'operator', label: '操作', width: 250 , operate: { view: true, edit: true, delete: true,push: {link: false,label:"继续该会话"},gen: {show: false,label:"下载文件"} }},
 ])

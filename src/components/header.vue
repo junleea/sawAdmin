@@ -22,19 +22,19 @@
 						<i class="el-icon-lx-skin"></i>
 					</el-tooltip>
 				</div>
-				<div class="btn-icon" @click="router.push('/ucenter')">
+				<!-- <div class="btn-icon" @click="router.push('/ucenter')">
 					<el-tooltip effect="dark" :content="message ? `有${message}条未读消息` : `消息中心`" placement="bottom">
 						<i class="el-icon-lx-notice"></i>
 					</el-tooltip>
 					<span class="btn-bell-badge" v-if="message"></span>
-				</div>
+				</div> -->
 				<div class="btn-icon" @click="setFullScreen">
 					<el-tooltip effect="dark" content="全屏" placement="bottom">
 						<i class="el-icon-lx-full"></i>
 					</el-tooltip>
 				</div>
 				<!-- 用户头像 -->
-				<el-avatar class="user-avator" :size="30" :src="imgurl" />
+				<el-avatar class="user-avator" :size="30" :src="imgurl2" />
 				<!-- 用户名下拉菜单 -->
 				<el-dropdown class="user-name" trigger="click" @command="handleCommand">
 					<span class="el-dropdown-link">
@@ -63,6 +63,7 @@ import imgurl from '../assets/img/img.jpg';
 const username: string | null = localStorage.getItem('ms_username');
 const message: number = 2;
 const imgurl2: string = localStorage.getItem('ms_imgurl') || imgurl;
+
 
 const sidebar = useSidebarStore();
 // 侧边栏折叠

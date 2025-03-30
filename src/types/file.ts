@@ -9,4 +9,4 @@ export interface File {
     file_store_name: string;
 }
 
-export const fileUrl ="https://pm.ljsea.top/file/";
+export const fileUrl ="https://pm.ljsea.top/tool/file/";

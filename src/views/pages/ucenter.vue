@@ -280,6 +280,18 @@ const saveAvatar =async () => {
         let formData = new FormData();
         //文件
         let file= dataURLtoFile(imgSrc.value, 'avatar.jpg');
+        //文件类型限制
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+            ElMessage.error('文件类型不符合要求，请选择jpg或png格式的图片');
+            return;
+        }
+        //文件大小限制
+        const maxSize = 2 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            ElMessage.error('文件大小超过限制最大2MB');
+            return;
+        }
 
         formData.append('file', file);
         //console.log("add file: " + this.file);
@@ -297,7 +309,7 @@ const saveAvatar =async () => {
         let resp_data = result.data;
 
         //console.log("resp:",resp_data);
-        let url = "https://tx.ljsea.top/tool/file/"+resp_data.FileStoreName;
+        let url = "https://pm.ljsea.top/tool/file/"+resp_data.FileStoreName;
 
         userInfo.value.Avatar = url;
         avatarImg.value = url;
