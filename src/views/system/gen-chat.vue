@@ -99,6 +99,12 @@
               :disabled="loading"
               >发送</el-button
             >
+            <div>
+              <p>模型参数</p>
+              <el-slider v-model="temperature" :min="0" :max="1" :step="0.1">temperature</el-slider>
+               <el-slider v-model="topP" :min="0" :max="1" :step="0.1"></el-slider>
+            </div>
+            
           </el-col>
           <el-col :span="3" style="text-align: center">
             <el-select v-model="selectModel" placeholder="选择模型">
@@ -163,6 +169,8 @@ const sessionIsShow = ref(false);
 const sessionName = ref("");
 const ModelList = ref<Model[]>([]);
 const selectModel = ref(0);
+const temperature = ref(0.5);
+const topP = ref(0.9);
 
 const renderMarkdown = (content: string) => {
   return md.render(content);
@@ -303,6 +311,8 @@ const sendMessage = () => {
     function: "gen-ai-chat",
     session_id: sessionID.value,
     model_id: selectModel.value,
+    temperature: temperature.value,
+    top_p: topP.value,
   };
   try {
     socket.value.send(JSON.stringify(msg));
@@ -470,7 +480,7 @@ GetModelListByFunctionName();
   padding: 10px;
   margin-bottom: 20px;
   scrollbar-width: 10px;
-  height: 90%;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;

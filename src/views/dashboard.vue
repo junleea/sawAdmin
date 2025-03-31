@@ -7,8 +7,8 @@
                         <User />
                     </el-icon>
                     <div class="card-content">
-                        <countup class="card-num color1" :end="6666" />
-                        <div>用户访问量</div>
+                        <countup class="card-num color1" :end="baseInfo.user_count" />
+                        <div>用户总量</div>
                     </div>
                 </el-card>
             </el-col>
@@ -18,30 +18,30 @@
                         <ChatDotRound />
                     </el-icon>
                     <div class="card-content">
-                        <countup class="card-num color2" :end="168" />
-                        <div>系统消息</div>
+                        <countup class="card-num color2" :end="baseInfo.message_count" />
+                        <div>系统处理问答数</div>
                     </div>
                 </el-card>
             </el-col>
             <el-col :span="6">
                 <el-card shadow="hover" body-class="card-body">
                     <el-icon class="card-icon bg3">
-                        <Goods />
+                        <ChatDotRound />
                     </el-icon>
                     <div class="card-content">
-                        <countup class="card-num color3" :end="8888" />
-                        <div>商品数量</div>
+                        <countup class="card-num color3" :end="baseInfo.session_num" />
+                        <div>系统总会话数</div>
                     </div>
                 </el-card>
             </el-col>
             <el-col :span="6">
                 <el-card shadow="hover" body-class="card-body">
                     <el-icon class="card-icon bg4">
-                        <ShoppingCartFull />
+                        <ChatDotRound />
                     </el-icon>
                     <div class="card-content">
-                        <countup class="card-num color4" :end="568" />
-                        <div>今日订单量</div>
+                        <countup class="card-num color4" :end="baseInfo.today_message_count" />
+                        <div>今日处理问答数</div>
                     </div>
                 </el-card>
             </el-col>
@@ -127,6 +127,7 @@
 </template>
 
 <script setup lang="ts" name="dashboard">
+import { ref, reactive } from 'vue';
 import countup from '@/components/countup.vue';
 import { use, registerMap } from 'echarts/core';
 import { BarChart, LineChart, PieChart, MapChart } from 'echarts/charts';
@@ -141,6 +142,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 import VChart from 'vue-echarts';
 import { dashOpt1, dashOpt2, mapOptions } from './chart/options';
 import chinaMap from '@/utils/china';
+import {GetDashBoardStatisticsService} from '@/api/tool';
+import { Sunny } from '@element-plus/icons-vue/dist/types';
 use([
     CanvasRenderer,
     BarChart,
@@ -154,6 +157,22 @@ use([
     MapChart,
 ]);
 registerMap('china', chinaMap);
+
+//"dashboard_statistics_st": {
+    // "session_num": 176,
+    //         "message_count": 485,
+    //         "user_count": 9625,
+    //         "today_message_count": 10
+    //     }
+    // },
+
+interface DashBoardBaseInfo {
+    session_num: number;
+    message_count: number;
+    user_count: number;
+    today_message_count: number;
+}
+const baseInfo = ref({} as DashBoardBaseInfo);
 const activities = [
     {
         content: '收藏商品',
@@ -219,6 +238,22 @@ const ranks = [
         color: '#009688',
     },
 ];
+
+const getDashBoardStatistics = async () => {
+    let req = {
+        token: localStorage.getItem('token'),
+    };
+    let result = await GetDashBoardStatisticsService(req);
+    if (result['code'] === 0) {
+        console.log('dashboard:', result['data']);
+        baseInfo.value = result['data']["dashboard_statistics_st"];
+        // 处理数据
+        // 例如：更新图表数据、统计信息等
+    } else {
+        console.error('获取统计数据失败:', result['msg']);
+    }
+};
+getDashBoardStatistics();
 </script>
 
 <style>

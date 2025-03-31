@@ -46,3 +46,17 @@ export const GetFileInfoByMd5Service = (Data) => {
         }
     })
 }
+
+
+export const GetDashBoardStatisticsService = (Data) => {
+    const params = new URLSearchParams();
+    for (let key in Data) {
+        params.append(key, Data[key])
+    }
+    //let request1 = getRequest();
+    return request.post('/tool/dashboard', params,{
+        headers: {
+            'token': Data.token, 
+        }
+    })
+}

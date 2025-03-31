@@ -64,7 +64,7 @@
               </div>
               <div class="model-params">
                 <h4>模型参数</h4>
-                <el-slider v-model="temperature" :min="0" :max="2" :step="0.1"></el-slider>
+                <el-slider v-model="temperature" :min="0" :max="1" :step="0.1"></el-slider>
                 <div class="param-value">{{ temperature }}</div>
                 <el-slider v-model="topP" :min="0" :max="1" :step="0.1"></el-slider>
                 <div class="param-value">{{ topP }}</div>
@@ -78,22 +78,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, reactive, nextTick } from "vue";
-import { WSMessage, AIQMessage, OllamaMessage } from "@/types/im";
+import { ref, onMounted, onUnmounted} from "vue";
+import { WSMessage} from "@/types/im";
+import { FindModelListByFunctionName } from "@/api/function";
+import { Model } from "@/types/model";
 import { ElMessage } from "element-plus";
 // 任务输入和结果Prompt
 const taskInput = ref('');
 const resultPrompt = ref('');
 const socket = ref(null);
+const deepseekLogo = "https://tse2-mm.cn.bing.net/th/id/OIP-C.-FZbTC72cXtUasfnISVDHgHaHa?rs=1&pid=ImgDetMain";
+const sparkLogo = "https://ts1.tc.mm.bing.net/th/id/R-C.421fb106722f3882c9f09650b281473f?rik=jMNRmW%2blXdjDvg&riu=http%3a%2f%2fwww.kuaipng.com%2fUploads%2fpic%2fw%2f2023%2f05-12%2f140009%2fwater_140009_698_698_.png&ehk=XSQ7SDsl6rJCOzDjsbIOvvuGhTv0HbPZTrD6u4yUTzM%3d&risl=&pid=ImgRaw&r=0";
+const doubaoLogo ="https://ai-bot.cn/wp-content/uploads/2024/09/doubao-llm-logo1.png";
 
 // 模型列表
 const models = ref([
   {
+    id: 0,
     logo: 'https://tse2-mm.cn.bing.net/th/id/OIP-C.-FZbTC72cXtUasfnISVDHgHaHa?rs=1&pid=ImgDetMain',
     name: 'Deepseek-R1',
     version: 'Deepseek-R1'
   },
 ]);
+
+const ModelList = ref<Model[]>([]);
+const pselectModel = ref<Model>();
 const selectedModel = ref(models.value[0]);
 
 // 温度和Top P参数
@@ -149,6 +158,7 @@ onMounted(() => {
     console.log("WebSocket 连接已建立");
     ElMessage.success("连接成功");
   };
+  
 
   socket.value.onmessage = (event) => {
     let msg: WSMessage = JSON.parse(event.data);
@@ -181,9 +191,60 @@ const sendMessage = () => {
     type: "ollama",
     function: "gen-prompt",
     session_id: sessionID.value,
+    model_id: selectedModel.value.id,
   };
   socket.value.send(JSON.stringify(msg));
 };
+
+const GetModelListByFunctionName = async () => {
+  let req = {
+    function: "gen-ai-chat",
+    token: localStorage.getItem("token"),
+  };
+  try{
+    let result = await FindModelListByFunctionName(req);
+    if (result["code"] === 0) {
+      ModelList.value = result["data"];
+      pselectModel.value = ModelList.value[0];
+      console.log("model_list:", ModelList.value);
+    } else {
+      ElMessage.error(result["msg"]);
+    }
+  }catch (e) {
+    console.log(e);
+  }
+  models.value = [];
+
+  for(let i = 0; i < ModelList.value.length; i++) {
+    let model = ModelList.value[i];
+    if (model["Type"] === "deepseek") {
+      models.value.push({
+        id: model["ID"],
+        logo: deepseekLogo,
+        name: model["Type"],
+        version: model["Description"],
+      });
+    } else if (model["Type"] === "spark") {
+      models.value.push({
+        id: model["ID"],
+        logo: sparkLogo,
+        name: model["Description"],
+        version: model["Description"],
+      });
+    } else if (model["Type"] === "doubao") {
+      models.value.push({
+        id: model["ID"],
+        logo: doubaoLogo,
+        name: model["Type"],
+        version: model["Description"],
+      });
+    }
+  }
+  selectedModel.value = models.value[0];
+
+};
+
+GetModelListByFunctionName();
 
 
 onUnmounted(() => {

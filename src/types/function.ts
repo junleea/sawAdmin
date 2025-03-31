@@ -7,6 +7,6 @@ export interface Function{
     Info: string;
     UserID: number;
     ModelID: number | Object | Array<any>;
-    ModelIDS: string| Object | Array<any>;
+    ModelIDS: string| Object | Array<any> | any;
     Function: string;
 }

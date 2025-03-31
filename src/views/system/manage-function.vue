@@ -135,7 +135,7 @@ const visible = ref(false);
 const visible_add = ref(false);
 const isEdit = ref(false);
 const isAdd = ref(false);
-const rowData = ref({});
+const rowData = ref<Function>({} as Function);
 const handleEdit = async (row: Function) => {
     let data = row;
     rowData.value = data;
