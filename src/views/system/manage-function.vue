@@ -88,6 +88,7 @@ const getData = async () => {
         type: "UserID"
     }
     let modelResult = await FindModelService(req);
+    model_select_opts.value.length = 0; // 清空数组
     for (let i = 0; i < modelResult.data.length; i++) {
         model_select_opts.value.push({
             label: modelResult.data[i].Type + ":" + modelResult.data[i].Description,
@@ -112,7 +113,7 @@ let options = ref<FormOption>({
     span: 12,
     list: [
         { type: 'input', label: '名称', prop: 'Name', required: true },
-        { type: 'select', label: '模型', prop: 'ModelID', required: true, opts:model_select_opts.value },
+        { type: 'select', label: '模型', prop: 'ModelIDS', required: true, opts:model_select_opts.value ,multiple: true},
         { type: 'input', label: '功能', prop: 'Function', required: true },
         { type: 'input', label: '描述', prop: 'Info', required: true },
     ]
@@ -138,13 +139,20 @@ const rowData = ref({});
 const handleEdit = async (row: Function) => {
     let data = row;
     rowData.value = data;
+    let model_ids = JSON.parse(data.ModelIDS.toString())
+    let model_id_list = []
+    for (let i = 0; i < model_ids.length; i++) {
+        model_id_list.push(model_ids[i]["id"])
+    }
+    rowData.value.ModelIDS = model_id_list
     //console.log("edit_row_data:", rowData.value);
     isEdit.value = true;
     visible.value = true;
 };
 const updateData = async (data) => {
     let model_id =[]
-    let model_id_list= data["ModelID"]
+    console.log("model update:",data)
+    let model_id_list= data["ModelIDS"]
     for (let i = 0; i < model_id_list.length; i++) {
         model_id.push({"id":model_id_list[i]})
     }
@@ -175,12 +183,20 @@ const updateData = async (data) => {
 };
 
 const addData = async (data) => {
+    let model_id =[]
+    console.log("model update:",data)
+    let model_id_list= data["ModelIDS"]
+    for (let i = 0; i < model_id_list.length; i++) {
+        model_id.push({"id":model_id_list[i]})
+    }
+    let model_ids = JSON.stringify(model_id)
     let result ={}
       try{
         let req={
             token:localStorage.getItem("token"),
             name: data.Name,
-            model_id: data.ModelID,
+            model_id: model_id_list[0],
+            model_ids: model_ids,
             function: data.Function,
             info: data.Info
         }

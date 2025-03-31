@@ -100,6 +100,16 @@
               >发送</el-button
             >
           </el-col>
+          <el-col :span="3" style="text-align: center">
+            <el-select v-model="selectModel" placeholder="选择模型">
+              <el-option
+                v-for="item in ModelList"
+                :key="item.ID"
+                :label="item.Type +':' + item.Description"
+                :value="item.ID"
+              ></el-option>
+            </el-select>
+          </el-col>
         </el-row>
       </el-card>
     </div>
@@ -109,7 +119,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, reactive, nextTick } from "vue";
 import { ElCard, ElInput, ElButton } from "element-plus";
-import { WSMessage, AIQMessage, OllamaMessage } from "@/types/im";
+import { WSMessage} from "@/types/im";
 import { ElMessage } from "element-plus";
 import { GetMessageService } from "@/api/im";
 import { Check, Loading, DocumentCopy } from "@element-plus/icons-vue";
@@ -117,10 +127,12 @@ import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
 import { Session } from "@/types/session";
 import { FindSessionService } from "@/api/session";
+import { FindModelListByFunctionName } from "@/api/function";
 import markdownItHighlightjs from "markdown-it-highlightjs";
 import markdownItKatex from "markdown-it-katex";
 import mermaidPlugin from "@agoose77/markdown-it-mermaid";
 import "katex/dist/katex.min.css";
+import { Model } from "@/types/model";
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -149,6 +161,8 @@ const sessionID = ref(0);
 const messagesContainer = ref<HTMLDivElement | null>(null);
 const sessionIsShow = ref(false);
 const sessionName = ref("");
+const ModelList = ref<Model[]>([]);
+const selectModel = ref(0);
 
 const renderMarkdown = (content: string) => {
   return md.render(content);
@@ -288,6 +302,7 @@ const sendMessage = () => {
     type: "ollama",
     function: "gen-ai-chat",
     session_id: sessionID.value,
+    model_id: selectModel.value,
   };
   try {
     socket.value.send(JSON.stringify(msg));
@@ -388,6 +403,27 @@ const copyMessage = (content: string) => {
       ElMessage.error("复制失败: " + error);
     });
 };
+
+const GetModelListByFunctionName = async () => {
+  let req = {
+    function: "gen-ai-chat",
+    token: localStorage.getItem("token"),
+  };
+  try{
+    let result = await FindModelListByFunctionName(req);
+    if (result["code"] === 0) {
+      ModelList.value = result["data"];
+      selectModel.value = ModelList.value[0].ID;
+      console.log("model_list:", ModelList.value);
+    } else {
+      ElMessage.error(result["msg"]);
+    }
+  }catch (e) {
+    console.log(e);
+  }
+};
+
+GetModelListByFunctionName();
 </script>
 <style scoped>
 .chat-app {

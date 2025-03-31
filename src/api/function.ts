@@ -47,3 +47,15 @@ export const DelFunctionService = (Data) => {
         }
     })
 }
+
+export const FindModelListByFunctionName= (Data) => {
+    const params = new URLSearchParams();
+    for (let key in Data) {
+        params.append(key, Data[key])
+    }
+    return request.post('/func/find_models_by_function', params,{
+        headers: {
+            'token': Data.token, //token
+        }
+    })
+}
