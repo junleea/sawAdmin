@@ -143,7 +143,6 @@ import VChart from 'vue-echarts';
 import { dashOpt1, dashOpt2, mapOptions } from './chart/options';
 import chinaMap from '@/utils/china';
 import {GetDashBoardStatisticsService} from '@/api/tool';
-import { Sunny } from '@element-plus/icons-vue/dist/types';
 use([
     CanvasRenderer,
     BarChart,
