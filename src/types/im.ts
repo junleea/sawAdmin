@@ -30,3 +30,27 @@ export interface OllamaRequest {
     context: number[];
 }
 
+// "ID": 488,
+// "CreatedAt": "2025-04-01T13:52:56.887+08:00",
+// "UpdatedAt": "2025-04-01T13:52:56.887+08:00",
+// "DeletedAt": null,
+// "Type": 3,
+// "SessionID": 178,
+// "FromID": 1,
+// "ToID": 11,
+// "Msg": "图片主要讲了什么",
+// "FunctionID": 2,
+// "Status": 3
+export interface GenMessage {
+    ID : number;
+    CreatedAt : string;
+    UpdatedAt : string;
+    DeletedAt : string;
+    Type : number;
+    SessionID : number;
+    FromID : number;
+    ToID : number;
+    Msg : string;
+    FunctionID : number;
+    Status : number;
+}
