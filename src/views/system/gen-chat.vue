@@ -119,12 +119,12 @@
           <el-col :span="1" style="text-align: center">
             <el-button @click="handleSelectFileVisible"><el-icon><Files /></el-icon></el-button>
           </el-col>
-          <el-col :span="1" style="text-align: center">
+          <!-- <el-col :span="1" style="text-align: center">
             <el-button @click="handleUploadPicture"><el-icon><Picture /></el-icon></el-button>
           </el-col>
           <el-col :span="1" style="text-align: center">
             <el-button><el-icon><VideoCamera /></el-icon></el-button>
-          </el-col>
+          </el-col> -->
         <!-- 已选文件一行显示 -->
         <el-col :span="12" style="text-align: center">
           <el-tag v-for="(file, index) in selectedFiles" :key="index" closable @close="removeFile(index)">{{ file.UserFileName }}</el-tag>
@@ -146,6 +146,7 @@
     v-model="searchFileQuery"
     prefix-icon="el-icon-search"
   />
+  <el-button @click="uploadMessageFile">上传文件</el-button>
   <!-- 文件列表 -->
   <div class="file-list">
     <el-checkbox-group v-model="selectedFiles">
@@ -173,6 +174,17 @@
   </div>
 </el-dialog>
   </div>
+  <!-- 上传文件对话框 -->
+   <div>
+    <el-dialog
+      title="上传文件"
+      v-model="uploadFileVisible"
+      width="50%"
+      :before-close="handleUploadFileClose"
+    >
+    <UploadFile></UploadFile>
+  </el-dialog>
+   </div>
 
 </template>
 
@@ -186,6 +198,7 @@ import { FindUserFileService } from "@/api/file";
 import { Check, Loading, DocumentCopy } from "@element-plus/icons-vue";
 import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
+import UploadFile from '@/components/upload-file.vue';
 import { Session } from "@/types/session";
 import { FindSessionService } from "@/api/session";
 import { FindModelListByFunctionName } from "@/api/function";
@@ -236,6 +249,7 @@ const selectedFiles = ref<File[]>([]); // 用于存储已选文件
 const selectFileVisible = ref(false); // 控制文件选择对话框的显示与隐藏
 const searchFileQuery = ref(""); // 用于搜索文件的查询条件
 const filteredFiles = ref<File[]>([]); // 用于存储过滤后的文件列表
+const uploadFileVisible = ref(false); // 控制上传文件对话框的显示与隐藏
 
 const renderMarkdown = (content: string) => {
   return md.render(content);
@@ -263,10 +277,23 @@ const handleSelectFileVisible = async () => {
   console.log("handleSelectFileVisible:", selectFileVisible.value);
 };
 
+const handleUploadFileClose= async () => {
+  uploadFileVisible.value = false; // 关闭上传文件对话框
+  await getFileListData(); // 获取文件列表
+  console.log("handleUploadFileClose:", uploadFileVisible.value);
+};
+
 const handleUploadPicture = () => {
   // 处理上传图片的逻辑
   //选择图片并上传
 
+};
+
+const uploadMessageFile = () => {
+  // 处理上传文件的逻辑
+  // 这里可以调用上传文件的API
+  uploadFileVisible.value = true; // 显示上传文件对话框
+  console.log("上传文件:", selectedFiles.value);
 };
 
 const handleSelectFileConfirm = () => {
