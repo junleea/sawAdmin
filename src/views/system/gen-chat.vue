@@ -81,7 +81,7 @@
             <el-input
               v-model="inputMessage"
               type="textarea"
-              style="border: 0;"
+              style="border: 0"
               :rows="5"
               placeholder="输入消息..."
               @keyup.enter="sendMessage"
@@ -102,8 +102,15 @@
             >
             <div>
               <p>模型参数</p>
-              <el-slider v-model="temperature" :min="0" :max="1" :step="0.1">temperature</el-slider>
-               <el-slider v-model="topP" :min="0" :max="1" :step="0.1"></el-slider>
+              <el-slider v-model="temperature" :min="0" :max="1" :step="0.1"
+                >temperature</el-slider
+              >
+              <el-slider
+                v-model="topP"
+                :min="0"
+                :max="1"
+                :step="0.1"
+              ></el-slider>
             </div>
           </el-col>
           <el-col :span="3" style="text-align: center">
@@ -111,13 +118,15 @@
               <el-option
                 v-for="item in ModelList"
                 :key="item.ID"
-                :label="item.Type +':' + item.Description"
+                :label="item.Type + ':' + item.Description"
                 :value="item.ID"
               ></el-option>
             </el-select>
           </el-col>
           <el-col :span="1" style="text-align: center">
-            <el-button @click="handleSelectFileVisible"><el-icon><Files /></el-icon></el-button>
+            <el-button @click="handleSelectFileVisible"
+              ><el-icon><Files /></el-icon
+            ></el-button>
           </el-col>
           <!-- <el-col :span="1" style="text-align: center">
             <el-button @click="handleUploadPicture"><el-icon><Picture /></el-icon></el-button>
@@ -125,96 +134,110 @@
           <el-col :span="1" style="text-align: center">
             <el-button><el-icon><VideoCamera /></el-icon></el-button>
           </el-col> -->
-        <!-- 已选文件一行显示 -->
-        <el-col :span="12" style="text-align: center">
-          <el-tag v-for="(file, index) in selectedFiles" :key="index" closable @close="removeFile(index)">{{ file.UserFileName }}</el-tag>
-        </el-col>
+          <!-- 已选文件一行显示 -->
+          <el-col :span="12" style="text-align: center">
+            <el-tag
+              v-for="(file, index) in selectedFiles"
+              :key="index"
+              closable
+              @close="removeFile(index)"
+              >{{ file.UserFileName }}</el-tag
+            >
+          </el-col>
         </el-row>
       </el-card>
     </div>
-  </div>
 
-  <div>
-    <!-- 文件对话框 -->
-    <el-dialog 
-  v-model="selectFileVisible"
-  title="从上传文件中选择"
-  width="50%"
->
-  <el-input
-    placeholder="搜索文件"
-    v-model="searchFileQuery"
-    prefix-icon="el-icon-search"
-  />
-  <el-button @click="uploadMessageFile">上传文件</el-button>
-  <!-- 文件列表 -->
-  <div class="file-list">
-    <el-checkbox-group v-model="selectedFiles">
-      <el-checkbox
-        v-for="(item, index) in filteredFiles"
-        :key="index"
-        :label="item"
+    <div>
+      <!-- 文件对话框 -->
+      <el-dialog
+        v-model="selectFileVisible"
+        title="从上传文件中选择"
+        width="50%"
       >
-        <span class="file-icon">
-          <!-- 根据文件类型展示不同图标 -->
-          <i v-if="item.UploadType === 'image'" class="el-icon-picture"></i>
-          <i v-else-if="item.UploadType === 'file'" class="el-icon-document"></i>
-          <!-- 可继续补充其他文件类型图标 -->
-        </span>
-        {{ item.UserFileName }}
-        <!-- <span class="file-time">{{ item.CreatedAt }}</span> -->
-      </el-checkbox>
-    </el-checkbox-group>
+        <el-input
+          placeholder="搜索文件"
+          v-model="searchFileQuery"
+          prefix-icon="el-icon-search"
+        />
+        <el-button @click="uploadMessageFile">上传文件</el-button>
+        <!-- 文件列表 -->
+        <div class="file-list">
+          <el-checkbox-group v-model="selectedFiles">
+            <el-checkbox
+              v-for="(item, index) in filteredFiles"
+              :key="index"
+              :label="item"
+            >
+              <span class="file-icon">
+                <!-- 根据文件类型展示不同图标 -->
+                <i
+                  v-if="item.UploadType === 'image'"
+                  class="el-icon-picture"
+                ></i>
+                <i
+                  v-else-if="item.UploadType === 'file'"
+                  class="el-icon-document"
+                ></i>
+                <!-- 可继续补充其他文件类型图标 -->
+              </span>
+              {{ item.UserFileName }}
+              <!-- <span class="file-time">{{ item.CreatedAt }}</span> -->
+            </el-checkbox>
+          </el-checkbox-group>
+        </div>
+        <!-- 底部状态栏和按钮 -->
+        <div class="footer-bar">
+          <span class="selected-count"
+            >已选 {{ selectedFiles.length }} 个文件</span
+          >
+          <el-button @click="selectFileVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleSelectFileConfirm"
+            >确认添加({{ selectedFiles.length }})</el-button
+          >
+        </div>
+      </el-dialog>
+    </div>
+    <!-- 上传文件对话框 -->
+    <div>
+      <el-dialog
+        title="上传文件"
+        v-model="uploadFileVisible"
+        width="50%"
+        :before-close="handleUploadFileClose"
+      >
+        <UploadFile></UploadFile>
+      </el-dialog>
+    </div>
   </div>
-  <!-- 底部状态栏和按钮 -->
-  <div class="footer-bar">
-    <span class="selected-count">已选 {{ selectedFiles.length }} 个文件</span>
-    <el-button @click="selectFileVisible = false">取消</el-button>
-    <el-button type="primary" @click="handleSelectFileConfirm">确认添加({{ selectedFiles.length }})</el-button>
-  </div>
-</el-dialog>
-  </div>
-  <!-- 上传文件对话框 -->
-   <div>
-    <el-dialog
-      title="上传文件"
-      v-model="uploadFileVisible"
-      width="50%"
-      :before-close="handleUploadFileClose"
-    >
-    <UploadFile></UploadFile>
-  </el-dialog>
-   </div>
-
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, reactive, nextTick } from "vue";
-import { ElCard, ElInput, ElButton,ElDialog } from "element-plus";
-import { WSMessage} from "@/types/im";
-import { ElMessage } from "element-plus";
+import { ElCard, ElInput, ElButton, ElDialog } from "element-plus";
+import { WSMessage, GenMessage } from "@/types/im";
 import { GetMessageService } from "@/api/im";
 import { FindUserFileService } from "@/api/file";
-import { Check, Loading, DocumentCopy } from "@element-plus/icons-vue";
-import MarkdownIt from "markdown-it";
-import hljs from "highlight.js";
-import UploadFile from '@/components/upload-file.vue';
+import { Model } from "@/types/model";
+import { File, fileUrl } from "@/types/file";
 import { Session } from "@/types/session";
 import { FindSessionService } from "@/api/session";
+import { ElMessage } from "element-plus";
+import { Check, DocumentCopy } from "@element-plus/icons-vue";
+import MarkdownIt from "markdown-it";
+import hljs from "highlight.js";
+import UploadFile from "@/components/upload-file.vue";
 import { FindModelListByFunctionName } from "@/api/function";
 import markdownItHighlightjs from "markdown-it-highlightjs";
 import markdownItKatex from "markdown-it-katex";
 import mermaidPlugin from "@agoose77/markdown-it-mermaid";
 import "katex/dist/katex.min.css";
-import { Model } from "@/types/model";
-import {File,fileUrl} from "@/types/file";
-import {GenMessage} from "@/types/im";
 interface Message {
   role: "user" | "assistant";
   content: string;
   finished?: boolean;
 }
-interface ImageMessage{
+interface ImageMessage {
   img_url: string;
   text: string;
 }
@@ -273,11 +296,11 @@ const removeFile = (index: number) => {
 const handleSelectFileVisible = async () => {
   await getFileListData(); // 获取文件列表
   console.log("selectedFiles:", selectedFiles.value);
-  selectFileVisible.value =true; // 显示对话框
+  selectFileVisible.value = true; // 显示对话框
   console.log("handleSelectFileVisible:", selectFileVisible.value);
 };
 
-const handleUploadFileClose= async () => {
+const handleUploadFileClose = async () => {
   uploadFileVisible.value = false; // 关闭上传文件对话框
   await getFileListData(); // 获取文件列表
   console.log("handleUploadFileClose:", uploadFileVisible.value);
@@ -286,7 +309,6 @@ const handleUploadFileClose= async () => {
 const handleUploadPicture = () => {
   // 处理上传图片的逻辑
   //选择图片并上传
-
 };
 
 const uploadMessageFile = () => {
@@ -430,11 +452,11 @@ const sendMessage = () => {
     temperature: temperature.value,
     top_p: topP.value,
   };
-  if(selectedFiles.value.length > 0){
+  if (selectedFiles.value.length > 0) {
     // 处理选中的文件
     console.log("选中的文件:", selectedFiles.value);
-    let img_file:File = selectedFiles.value[0];
-    let img_msg:ImageMessage = {
+    let img_file: File = selectedFiles.value[0];
+    let img_msg: ImageMessage = {
       img_url: fileUrl + img_file.file_store_name,
       text: inputMessage.value,
     };
@@ -442,7 +464,7 @@ const sendMessage = () => {
     msg["msg"] = img_msg_str;
     msg["is_image"] = true;
   }
-  
+
   try {
     socket.value.send(JSON.stringify(msg));
   } catch (e) {
@@ -452,19 +474,19 @@ const sendMessage = () => {
   if (sessionID.value == 0) {
     sessionName.value = inputMessage.value;
   }
-  let pMsgContent
-  if(msg["is_image"]){
-    let img_msg:ImageMessage = JSON.parse(msg["msg"]);
+  let pMsgContent;
+  if (msg["is_image"]) {
+    let img_msg: ImageMessage = JSON.parse(msg["msg"]);
     //解析成md格式
     pMsgContent = `![图片](${img_msg.img_url})` + "\n" + img_msg.text;
-  }else{
+  } else {
     pMsgContent = msg.msg;
   }
   messages.push({ role: "user", content: pMsgContent, finished: true });
   inputMessage.value = "";
   nextTick(() => {
-      scrollToBottom(); // 新增滚动调用
-    });
+    scrollToBottom(); // 新增滚动调用
+  });
   loading.value = true;
   if (sessionID.value == 0) {
     sessionName.value = msg.msg;
@@ -519,13 +541,13 @@ const getMessage = async (session_id: number) => {
       let data = result["data"];
       for (let i = 0; i < data.length; i++) {
         if (data[i]["Type"] === 3) {
-          let msg:GenMessage=data[i];
-          let pMsgContent
-          if(msg.Status==3){
-            let img_msg:ImageMessage = JSON.parse(msg.Msg);
+          let msg: GenMessage = data[i];
+          let pMsgContent;
+          if (msg.Status == 3) {
+            let img_msg: ImageMessage = JSON.parse(msg.Msg);
             //解析成md格式
             pMsgContent = `![图片](${img_msg.img_url})` + "\n" + img_msg.text;
-          }else{
+          } else {
             pMsgContent = msg.Msg;
           }
           messages.push({
@@ -565,7 +587,7 @@ const GetModelListByFunctionName = async () => {
     function: "gen-ai-chat",
     token: localStorage.getItem("token"),
   };
-  try{
+  try {
     let result = await FindModelListByFunctionName(req);
     if (result["code"] === 0) {
       ModelList.value = result["data"];
@@ -574,7 +596,7 @@ const GetModelListByFunctionName = async () => {
     } else {
       ElMessage.error(result["msg"]);
     }
-  }catch (e) {
+  } catch (e) {
     console.log(e);
   }
 };
@@ -582,16 +604,16 @@ const GetModelListByFunctionName = async () => {
 GetModelListByFunctionName();
 
 const getFileListData = async () => {
-    let req={
-        token: localStorage.getItem('token'),
-        type: "all"
-    }
-    let result = await FindUserFileService(req);
-    if (result["code"] === 0) {
-      filteredFiles.value = result["data"];
-    } else {
-        ElMessage.error(result["msg"]);
-    }
+  let req = {
+    token: localStorage.getItem("token"),
+    type: "all",
+  };
+  let result = await FindUserFileService(req);
+  if (result["code"] === 0) {
+    filteredFiles.value = result["data"];
+  } else {
+    ElMessage.error(result["msg"]);
+  }
 };
 </script>
 <style scoped>
