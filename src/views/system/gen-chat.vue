@@ -237,8 +237,12 @@ interface Message {
   content: string;
   finished?: boolean;
 }
+interface SendImageMessage {
+  img_name : string;
+  img_url : string;
+}
 interface ImageMessage {
-  img_url: string;
+  image_content: SendImageMessage[];
   text: string;
 }
 
@@ -248,6 +252,13 @@ md.use(markdownItHighlightjs, {
   auto: true,
   code: true,
 });
+md.renderer.rules.image = function (tokens, idx, options, env, self) {
+  const token = tokens[idx];
+  // 设置图片的宽度和高度属性
+  token.attrSet('width', '400'); 
+  token.attrSet('height', '300'); 
+  return self.renderToken(tokens, idx, options, env, self);
+};
 md.use(markdownItKatex);
 md.use(mermaidPlugin);
 
@@ -456,8 +467,12 @@ const sendMessage = () => {
     // 处理选中的文件
     console.log("选中的文件:", selectedFiles.value);
     let img_file: File = selectedFiles.value[0];
+    let img_content = []
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+      img_content.push({"img_name": selectedFiles.value[i].UserFileName, "img_url": fileUrl + selectedFiles.value[i].file_store_name});
+    }
     let img_msg: ImageMessage = {
-      img_url: fileUrl + img_file.file_store_name,
+      image_content: img_content,
       text: inputMessage.value,
     };
     let img_msg_str = JSON.stringify(img_msg);
@@ -474,11 +489,15 @@ const sendMessage = () => {
   if (sessionID.value == 0) {
     sessionName.value = inputMessage.value;
   }
-  let pMsgContent;
+  let pMsgContent ="";
   if (msg["is_image"]) {
     let img_msg: ImageMessage = JSON.parse(msg["msg"]);
     //解析成md格式
-    pMsgContent = `![图片](${img_msg.img_url})` + "\n" + img_msg.text;
+    let img_content= img_msg.image_content
+    for (let i = 0; i < img_content.length; i++) {
+      pMsgContent += `![${img_content[i].img_name}](${img_content[i].img_url})` + "\n";
+    }
+    pMsgContent = pMsgContent + img_msg.text;
   } else {
     pMsgContent = msg.msg;
   }
@@ -542,11 +561,15 @@ const getMessage = async (session_id: number) => {
       for (let i = 0; i < data.length; i++) {
         if (data[i]["Type"] === 3) {
           let msg: GenMessage = data[i];
-          let pMsgContent;
+          let pMsgContent="";
           if (msg.Status == 3) {
             let img_msg: ImageMessage = JSON.parse(msg.Msg);
             //解析成md格式
-            pMsgContent = `![图片](${img_msg.img_url})` + "\n" + img_msg.text;
+            let img_content= img_msg.image_content
+            for (let i = 0; i < img_content.length; i++) {
+              pMsgContent += `![${img_content[i].img_name}](${img_content[i].img_url})` + "\n";
+            }
+            pMsgContent = pMsgContent + img_msg.text;
           } else {
             pMsgContent = msg.Msg;
           }
