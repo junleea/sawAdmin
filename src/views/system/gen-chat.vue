@@ -535,6 +535,7 @@ const showSession = async () => {
   let req = {
     token: localStorage.getItem("token"),
     type: "UserID",
+    session_type: 1, //通用会话
   };
   let result = await FindSessionService(req);
   historySessions.value = result.data;

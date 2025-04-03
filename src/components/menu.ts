@@ -222,6 +222,12 @@ export const menuData: Menus[] = [
         title: '提示词生成',
     },
     {
+        id: '57',
+        icon: 'ChatDotSquare',
+        index: '/ai-ppt',
+        title: '智能PPT生成',
+    },
+    {
         id: '6',
         icon: 'DocumentAdd',
         index: '6',

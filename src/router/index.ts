@@ -78,6 +78,16 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "gen-chat" */ '../views/system/gen-chat.vue'),
             },
             {
+                path: "/ai-ppt",
+                name: "ai-ppt",
+                meta: {
+                    title: "智能PPT生成",
+                    permiss: '57',
+                },
+                component: () => import(/* webpackChunkName: "ai-ppt" */ '../views/system/ai-ppt.vue'),
+
+            },
+            {
                 path: '/gen-prompt',
                 name: 'gen-prompt',
                 meta: {
