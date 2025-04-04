@@ -118,10 +118,19 @@
                 @click="sendMessage"
                 type="success"
                 :icon="Check"
+                v-if="buttionConverse==0"
                 round
                 :disabled="loading"
                 >发送</el-button
               >
+              <el-button
+                @click="CreateSparkPPT"
+                type="success"
+                v-if="buttionConverse==1"
+                :icon="Check"
+                round
+                :disabled="loading"
+                >生成ppt</el-button>
             </el-col>
             <el-col :span="3" style="text-align: center">
               <el-select v-model="selectModel" placeholder="选择模型">
@@ -293,6 +302,7 @@
   const sessionIsShow = ref(false);
   const sessionName = ref("");
   const ModelList = ref<Model[]>([]);
+  const buttionConverse = ref(0);
   const selectModel = ref(0);
   const selectedFiles = ref<File[]>([]); // 用于存储已选文件
   const selectFileVisible = ref(false); // 控制文件选择对话框的显示与隐藏
@@ -458,6 +468,7 @@
         };
         messages.push(msg);
         console.log("ppt_outline:", result['data']);
+        sessionID.value = baseInfo.value.session_id;
     } else {
         ElMessage.error(result['data']);
     }
@@ -470,6 +481,7 @@
       sessionName.value = req.query;
     }
     loading.value = false;
+    buttionConverse.value = 1; // 显示生成ppt按钮
   };
   
   const loadSession = async (session_id: number) => {
@@ -638,12 +650,14 @@ const CreateSparkPPTOutline = async () => {
     } else {
         ElMessage.error(result['data']);
     }
+    buttionConverse.value =0 //发送按钮
 }
 
 const CreateSparkPPT = async () => {
     let req = {
         token: localStorage.getItem('token'),
         function: "spark-create-ppt",
+        sessionId: sessionID.value,
         outline: createOutlineResp.value.data.outline,
         query: "生成PPT",
         fileUrl:  fileUrl + selectedFiles.value[0].file_store_name,
@@ -657,13 +671,14 @@ const CreateSparkPPT = async () => {
     } else {
         ElMessage.error(result['data']);
     }
+    getCreatedPPTStatus()
 }
 
 const getCreatedPPTStatus = async () => {
     let req = {
         token: localStorage.getItem('token'),
         function: "spark-create-ppt",
-        session_id: sessionID.value,
+        sessionId: sessionID.value,
     }
     let result = await GetSparkPPTStatusService(req);
     if (result['code'] === 0) {
