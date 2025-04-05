@@ -62,26 +62,26 @@
             <div class="message-content">
               <div v-if="message.isOutline === false" v-html="renderMarkdown(message.content)"></div>
 
-            <!-- 大纲部分开始 -->
-            <div v-if="message.role === 'assistant' && message.isOutline">
-              <el-input v-model="message.outline.title" placeholder="请输入大纲标题"></el-input>
-              <el-input v-model="message.outline.subTitle" placeholder="请输入大纲副标题"></el-input>
-              <el-collapse v-model="message.outline.chapters">
-                <template v-for="(chapter, chapterIndex) in message.outline.chapters">
-                  <el-collapse-item :name="chapter.chapterTitle">
-                    <template #title>
-                      <el-input v-model="chapter.chapterTitle" placeholder="请输入章节标题"></el-input>
+                <!-- 大纲部分开始 -->
+                <div v-if="message.isOutline">
+                  <el-input v-model="message.outline.title" placeholder="请输入大纲标题"></el-input>
+                  <el-input v-model="message.outline.subTitle" placeholder="请输入大纲副标题"></el-input>
+                  <el-collapse v-model="message.outline.chapters">
+                    <template v-for="(chapter, chapterIndex) in message.outline.chapters">
+                      <el-collapse-item :name="chapter.chapterTitle">
+                        <template #title>
+                          <el-input v-model="chapter.chapterTitle" placeholder="请输入章节标题"></el-input>
+                        </template>
+                        <el-collapse v-model="chapter.chapterContents[chapterIndex]">
+                          <template v-for="(content, contentIndex) in chapter.chapterContents">
+                            <el-input v-model="content.chapterTitle" placeholder="请输入章节内容"></el-input>
+                          </template>
+                        </el-collapse>
+                      </el-collapse-item>
                     </template>
-                    <el-collapse v-model="chapter.chapterContents[chapterIndex]">
-                      <template v-for="(content, contentIndex) in chapter.chapterContents">
-                        <el-input v-model="content.chapterTitle" placeholder="请输入章节内容"></el-input>
-                      </template>
-                    </el-collapse>
-                  </el-collapse-item>
-                </template>
-              </el-collapse>
-            </div>
-            <!-- 大纲部分结束 -->
+                  </el-collapse>
+                </div>
+                <!-- 大纲部分结束 -->
 
               <!-- 添加复制 -->
               <div>
@@ -326,8 +326,8 @@
   
   const scrollToBottom = () => {
     let x = document.getElementsByClassName("chat-messages")[0];
-    // if (!x) return;
-    // x.scrollTop = x.scrollHeight; //将滚轮置底
+    if (!x) return;
+    x.scrollTop = x.scrollHeight; //将滚轮置底
   };
   
   const copyCode = (code: string) => {
@@ -435,6 +435,11 @@
       ElMessage.warning("消息不能为空");
       return;
     }
+    
+    if (messages.length>=4){
+      ElMessage.warning("当前会话已结束，创建ppt请新建会话");
+      return;
+    }
     loading.value = true;
 
     let req = {
@@ -536,14 +541,18 @@
         let message1: MessageOutline = { role: "user", content: `[${m1.fileName}](${m1.fileUrl})` + "\n"+ m1.query, outline: null, isOutline: false };
         messages.push(message1);
         let m2 = JSON.parse(data[1]["Msg"]);
-        let message2: MessageOutline = { role: "assistant", content:data[1]["Msg"] , outline: null, isOutline: false };
+        let message2: MessageOutline = { role: "assistant", content:"" , outline: m2.data.outline, isOutline: true, finished: true };
         messages.push(message2);
         let m3 = JSON.parse(data[2]["Msg"]);
-        let message3: MessageOutline = { role: "user", content: data[2]["Msg"], outline: null, isOutline: false };
+        let message3: MessageOutline = { role: "user", content: "", outline: m3.outline, isOutline: true, finished: true };
         messages.push(message3);
-        let message4: MessageOutline = { role: "assistant", content: data[3]["Msg"], outline: null, isOutline: false };
+        let m4 = JSON.parse(data[3]["Msg"]);
+        console.log("ppt:", m4);
+        let fileInfo = JSON.parse(m4.data.aiImageStatus);
+        // let outlineInfo = JSON.parse(m4.desc);
+        //这里share_code是存文件的文件名,即file_store_name
+        let message4: MessageOutline = { role: "assistant", content: `制作ppt:\n`+ `[${fileInfo["UserFileName"]}](${fileUrl+fileInfo["ShareCode"]})`, outline: null, isOutline: false, finished: true };
         messages.push(message4);
-
       }
     } catch (e) {
       console.log(e);
@@ -662,15 +671,7 @@ const CreateSparkPPT = async () => {
               await getCreatedPPTStatus();
               console.log("ppt_status:", getPPTStatus.value);
               if (getPPTStatus.value != null && getPPTStatus.value.data.pptStatus === "done") {
-                  // 输出
-                  let msg: MessageOutline = {
-                      role: "assistant",
-                      content: `[${getPPTStatus.value.data.aiImageStatus}](${getPPTStatus.value.data.pptUrl})`,
-                      outline: null,
-                      isOutline: false,
-                      finished: true,
-                  };
-                  messages.push(msg);
+                  getMessage(sessionID.value); // 获取消息
                   // 停止定时任务
                   clearInterval(timerId);
               }
@@ -685,14 +686,12 @@ const getCreatedPPTStatus = async () => {
     let req = {
         token: localStorage.getItem('token'),
         function: "spark-create-ppt",
-        sessionId: 234,  //sessionID.value
+        sessionId: sessionID.value,  //sessionID.value
     }
     let result = await GetSparkPPTStatusService(req);
     if (result['code'] === 0) {
         getPPTStatus.value = result['data'];
         console.log("ppt_status:", result['data']);
-    } else {
-        ElMessage.error(result['data']);
     }
 }
 getCreatedPPTStatus();
