@@ -531,37 +531,19 @@
       if (result["code"] === 0) {
         console.log(result["data"]);
         let data = result["data"];
-        for (let i = 0; i < data.length; i++) {
-          if (data[i]["Type"] === 3) {
-            let msg: GenMessage = data[i];
-            let pMsgContent="";
-            if (msg.Status == 3) {
-              let img_msg: ImageMessage = JSON.parse(msg.Msg);
-              //解析成md格式
-              let img_content= img_msg.image_content
-              for (let i = 0; i < img_content.length; i++) {
-                pMsgContent += `![${img_content[i].file_name}](${img_content[i].file_url})` + "\n";
-              }
-              pMsgContent = pMsgContent + img_msg.text;
-            } else {
-              pMsgContent = msg.Msg;
-            }
-            //将图片消息转换为Markdown格式
-            // messages.push({
-            //   role: "user",
-            //   content: pMsgContent,
-            //   finished: true,
-            // });
-          } else if (data[i]["Type"] === 4) {
-            // messages.push({
-            //   role: "assistant",
-            //   content: data[i]["Msg"],
-            //   finished: true,
-            // });
-          } else {
-            console.log("未知消息类型");
-          }
-        }
+        messages.length = 0; // 清空消息
+        let m1 = JSON.parse(data[0]["Msg"]);
+        let message1: MessageOutline = { role: "user", content: `[${m1.fileName}](${m1.fileUrl})` + "\n"+ m1.query, outline: null, isOutline: false };
+        messages.push(message1);
+        let m2 = JSON.parse(data[1]["Msg"]);
+        let message2: MessageOutline = { role: "assistant", content:data[1]["Msg"] , outline: null, isOutline: false };
+        messages.push(message2);
+        let m3 = JSON.parse(data[2]["Msg"]);
+        let message3: MessageOutline = { role: "user", content: data[2]["Msg"], outline: null, isOutline: false };
+        messages.push(message3);
+        let message4: MessageOutline = { role: "assistant", content: data[3]["Msg"], outline: null, isOutline: false };
+        messages.push(message4);
+
       }
     } catch (e) {
       console.log(e);
@@ -664,6 +646,8 @@ const CreateSparkPPT = async () => {
         fileName: selectedFiles.value[0].UserFileName,
     }
     let result = await CreateSparkPPTService(req);
+    let msg1 :MessageOutline = { role: "user", content: `[${req.fileName}](${req.fileUrl})` + "\n"+ req.query, finished: true, isOutline: true,outline: req.outline }
+    messages.push(msg1);
     if (result['code'] === 0) {
         baseInfo.value = result['base'];
         createPPTResp.value = result['data'];
@@ -671,14 +655,37 @@ const CreateSparkPPT = async () => {
     } else {
         ElMessage.error(result['data']);
     }
-    getCreatedPPTStatus()
+    ElMessage.success("PPT生成中，请稍等...,可退出当前会话，完成的ppt可以在历史会话或你的文件中查看");
+  // 保存定时器 ID
+  const timerId = setInterval(async () => {
+          try {
+              await getCreatedPPTStatus();
+              console.log("ppt_status:", getPPTStatus.value);
+              if (getPPTStatus.value != null && getPPTStatus.value.data.pptStatus === "done") {
+                  // 输出
+                  let msg: MessageOutline = {
+                      role: "assistant",
+                      content: `[${getPPTStatus.value.data.aiImageStatus}](${getPPTStatus.value.data.pptUrl})`,
+                      outline: null,
+                      isOutline: false,
+                      finished: true,
+                  };
+                  messages.push(msg);
+                  // 停止定时任务
+                  clearInterval(timerId);
+              }
+          } catch (error) {
+              console.error('获取 PPT 状态时出错:', error);
+              clearInterval(timerId);
+          }
+      }, 1000); // 每 1 秒获取一次状态
 }
 
 const getCreatedPPTStatus = async () => {
     let req = {
         token: localStorage.getItem('token'),
         function: "spark-create-ppt",
-        sessionId: sessionID.value,
+        sessionId: 234,  //sessionID.value
     }
     let result = await GetSparkPPTStatusService(req);
     if (result['code'] === 0) {
@@ -688,7 +695,7 @@ const getCreatedPPTStatus = async () => {
         ElMessage.error(result['data']);
     }
 }
-
+getCreatedPPTStatus();
 getSparkPPTThemeList();
   </script>
   <style scoped>
