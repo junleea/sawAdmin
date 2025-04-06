@@ -67,7 +67,7 @@ export const lineOptions = {
 
 export const pieOptions = {
     title: {
-        text: 'Referer of a Website',
+        text: '系统开发语言',
         subtext: 'Fake Data',
         left: 'center',
     },
@@ -84,11 +84,11 @@ export const pieOptions = {
             type: 'pie',
             radius: '50%',
             data: [
-                { value: 1048, name: 'Search Engine' },
-                { value: 735, name: 'Direct' },
-                { value: 580, name: 'Email' },
-                { value: 484, name: 'Union Ads' },
-                { value: 300, name: 'Video Ads' },
+                { value: 1048, name: 'golang' },
+                { value: 735, name: 'Vue3' },
+                { value: 580, name: 'TypeScript' },
+                { value: 484, name: 'CSS' },
+                { value: 300, name: 'Python' },
             ],
             emphasis: {
                 itemStyle: {

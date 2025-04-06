@@ -51,19 +51,19 @@
             <el-col :span="18">
                 <el-card shadow="hover">
                     <div class="card-header">
-                        <p class="card-header-title">订单动态</p>
-                        <p class="card-header-desc">最近一周订单状态，包括订单成交量和订单退货量</p>
+                        <p class="card-header-title">会话动态</p>
+                        <p class="card-header-desc">最近一周会话动态，系统的处理会话数及消息数</p>
                     </div>
-                    <v-chart class="chart" :option="dashOpt1" />
+                    <v-chart class="chart" :option="dashOpt1_" />
                 </el-card>
             </el-col>
             <el-col :span="6">
                 <el-card shadow="hover">
                     <div class="card-header">
-                        <p class="card-header-title">品类分布</p>
-                        <p class="card-header-desc">最近一个月销售商品的品类情况</p>
+                        <p class="card-header-title">模型使用统计</p>
+                        <p class="card-header-desc">模型使用统计情况</p>
                     </div>
-                    <v-chart class="chart" :option="dashOpt2" />
+                    <v-chart class="chart" :option="dashOpt2_" />
                 </el-card>
             </el-col>
         </el-row>
@@ -72,7 +72,7 @@
                 <el-card shadow="hover" :body-style="{ height: '400px' }">
                     <div class="card-header">
                         <p class="card-header-title">时间线</p>
-                        <p class="card-header-desc">最新的销售动态和活动信息</p>
+                        <p class="card-header-desc">系统功能开发过程</p>
                     </div>
                     <el-timeline>
                         <el-timeline-item v-for="(activity, index) in activities" :key="index" :color="activity.color">
@@ -88,19 +88,18 @@
                 </el-card>
             </el-col>
             <el-col :span="10">
-                <el-card shadow="hover" :body-style="{ height: '400px' }">
-                    <div class="card-header">
-                        <p class="card-header-title">渠道统计</p>
-                        <p class="card-header-desc">最近一个月的订单来源统计</p>
-                    </div>
-                    <v-chart class="map-chart" :option="mapOptions" />
-                </el-card>
+                <el-card :body-style="{ height: '400px' }" shadow="hover">
+                    <template #header>
+                        <div class="content-title">饼状图</div>
+                    </template>
+                    <v-chart class="schart" :option="pieOptions" />
+                 </el-card>
             </el-col>
             <el-col :span="7">
                 <el-card shadow="hover" :body-style="{ height: '400px' }">
                     <div class="card-header">
-                        <p class="card-header-title">排行榜</p>
-                        <p class="card-header-desc">销售商品的热门榜单Top5</p>
+                        <p class="card-header-title">模型使用排行榜</p>
+                        <p class="card-header-desc">热门模型使用排行榜</p>
                     </div>
                     <div>
                         <div class="rank-item" v-for="(rank, index) in ranks">
@@ -108,7 +107,7 @@
                             <div class="rank-item-content">
                                 <div class="rank-item-top">
                                     <div class="rank-item-title">{{ rank.title }}</div>
-                                    <div class="rank-item-desc">销量：{{ rank.value }}</div>
+                                    <div class="rank-item-desc">使用量：{{ rank.value }}</div>
                                 </div>
                                 <el-progress
                                     :show-text="false"
@@ -129,6 +128,7 @@
 <script setup lang="ts" name="dashboard">
 import { ref, reactive } from 'vue';
 import countup from '@/components/countup.vue';
+import { Function } from '@/types/function';
 import { use, registerMap } from 'echarts/core';
 import { BarChart, LineChart, PieChart, MapChart } from 'echarts/charts';
 import {
@@ -140,9 +140,10 @@ import {
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import VChart from 'vue-echarts';
-import { dashOpt1, dashOpt2, mapOptions } from './chart/options';
+import { dashOpt1, dashOpt2, pieOptions } from './chart/options';
 import chinaMap from '@/utils/china';
 import {GetDashBoardStatisticsService} from '@/api/tool';
+import {FindFunctionService} from "@/api/function";
 use([
     CanvasRenderer,
     BarChart,
@@ -155,7 +156,8 @@ use([
     VisualMapComponent,
     MapChart,
 ]);
-registerMap('china', chinaMap);
+const dashOpt2_ = reactive(dashOpt2);
+const dashOpt1_ = reactive(dashOpt1);
 
 //"dashboard_statistics_st": {
     // "session_num": 176,
@@ -172,71 +174,22 @@ interface DashBoardBaseInfo {
     today_message_count: number;
 }
 const baseInfo = ref({} as DashBoardBaseInfo);
-const activities = [
-    {
-        content: '收藏商品',
-        description: 'xxx收藏了你的商品，就是不买',
-        timestamp: '30分钟前',
-        color: '#00bcd4',
-    },
-    {
-        content: '用户评价',
-        description: 'xxx给了某某商品一个差评，吐血啊',
-        timestamp: '55分钟前',
-        color: '#1ABC9C',
-    },
-    {
-        content: '订单提交',
-        description: 'xxx提交了订单，快去收钱吧',
-        timestamp: '1小时前',
-        color: '#3f51b5',
-    },
-    {
-        content: '退款申请',
-        description: 'xxx申请了仅退款，又要亏钱了',
-        timestamp: '15小时前',
-        color: '#f44336',
-    },
-    {
-        content: '商品上架',
-        description: '运营专员瞒着你上架了一辆飞机',
-        timestamp: '1天前',
-        color: '#009688',
-    },
-];
 
-const ranks = [
-    {
-        title: '手机',
-        value: 10000,
-        percent: 80,
-        color: '#f25e43',
-    },
-    {
-        title: '电脑',
-        value: 8000,
-        percent: 70,
-        color: '#00bcd4',
-    },
-    {
-        title: '相机',
-        value: 6000,
-        percent: 60,
-        color: '#64d572',
-    },
-    {
-        title: '衣服',
-        value: 5000,
-        percent: 55,
-        color: '#e9a745',
-    },
-    {
-        title: '书籍',
-        value: 4000,
-        percent: 50,
-        color: '#009688',
-    },
-];
+interface Activitie{
+    content: string;
+    description: string;
+    timestamp: string;
+    color: string;
+}
+const activities = ref<Activitie[]>([]);
+
+interface Rank {
+    title: string;
+    value: number;
+    percent: number;
+    color: string;
+}
+const ranks = ref<Rank[]>([]);
 
 const getDashBoardStatistics = async () => {
     let req = {
@@ -246,10 +199,44 @@ const getDashBoardStatistics = async () => {
     if (result['code'] === 0) {
         console.log('dashboard:', result['data']);
         baseInfo.value = result['data']["dashboard_statistics_st"];
+        dashOpt2_.series[0].data = result['data']["dashboard_statistics_model_st"];
+        let max_model = Math.max(...result['data']["dashboard_statistics_model_st"].map((item: any) => item.value));
+        ranks.value = result['data']["dashboard_statistics_model_st"].map((item: any) => {
+            return {
+                title: item.name,
+                value: item.value,
+                percent: (item.value / max_model*2) * 100,
+                color: '#2d8cf0',
+            };
+        });
+        ranks.value.sort((a, b) => b.value - a.value);
+        console.log('ranks:', ranks.value);
         // 处理数据
-        // 例如：更新图表数据、统计信息等
+        //过去一周会话、消息数
+        let sessionData = result['data']["dashboard_statistics_week"]["session_count"];
+        let messageData = result['data']["dashboard_statistics_week"]["message_count"];
+        let sessionCounts = sessionData.map((item: any) => item.count);
+        let messageCounts = messageData.map((item: any) => item.count);
+        dashOpt1_.series[0].data = sessionCounts;
+        dashOpt1_.series[1].data = messageCounts;
     } else {
         console.error('获取统计数据失败:', result['msg']);
+    }
+    let function_result = await FindFunctionService(req);
+    if (function_result['code'] === 0) {
+        let functions: Function[] = function_result['data'];
+        activities.value = functions.map((item: any) => {
+            return {
+                content: item.Name,
+                description: item.Function,
+                timestamp: item.CreatedAt,
+                color: '#2d8cf0',
+            };
+        });
+        activities.value.unshift({content: '基础管理功能',description: '系统基础管理功能开发',timestamp: "2024-03-23 12:21:42",color: '#2d8cf0'});
+        activities.value.push({content: '数据统计功能',description: '系统数据统计功能开发',timestamp: "2024-03-23 12:21:42",color: '#2d8cf0'});
+    } else {
+        console.error('获取统计数据失败:', function_result['msg']);
     }
 };
 getDashBoardStatistics();
@@ -387,5 +374,10 @@ getDashBoardStatistics();
 .map-chart {
     width: 100%;
     height: 350px;
+}
+.content-title {
+    font-weight: 400;
+    font-size: 22px;
+    color: #1f2f3d;
 }
 </style>
