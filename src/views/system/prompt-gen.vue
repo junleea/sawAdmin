@@ -24,8 +24,8 @@
         <el-button type="primary" @click="generatePrompt">生成Prompt</el-button>
         <div class="prompt-template">
           <h3>Prompt 模板</h3>
-          <el-button type="success" size="small" @click="addTemplate">模板新增</el-button>
-          <div v-for="(template, index) in templates" :key="index" class="template-item">
+          <!-- <el-button type="success" size="small" @click="addTemplate">模板新增</el-button> -->
+          <div v-for="(template, index) in templates" :key="index" class="template-item" @click="addTemplate(template)">
             <div class="template-title">{{ template.title }}</div>
             <div class="template-desc">{{ template.desc }}</div>
           </div>
@@ -74,6 +74,15 @@
         </el-dropdown>
       </div>
     </div>
+
+    <!-- 历史会话 -->
+    <el-button  @click="showSession">历史提示词</el-button>
+    <el-dialog title="历史提示词" v-model="isShowSession">
+      <div v-for="(session, index) in sessionList" :key="index" class="template-item" @click="selectSession(session)">
+            <div class="template-title">{{ session.Name }}</div>
+            <!-- <div class="template-desc">{{ template.desc }}</div> -->
+          </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -83,6 +92,9 @@ import { WSMessage} from "@/types/im";
 import { FindModelListByFunctionName } from "@/api/function";
 import { Model } from "@/types/model";
 import { ElMessage } from "element-plus";
+import { GetMessageService } from "@/api/im";
+import { FindSessionService } from "@/api/session";
+import { Session } from '@/types/session';
 // 任务输入和结果Prompt
 const taskInput = ref('');
 const resultPrompt = ref('');
@@ -111,6 +123,8 @@ const topP = ref(0.7);
 
 // 会话ID
 const sessionID = ref(0);
+const isShowSession = ref(false);
+const sessionList = ref<Session[]>([]);
 
 // Prompt模板
 const templates = ref([
@@ -133,9 +147,10 @@ const generatePrompt = () => {
 };
 
 // 新增模板方法
-const addTemplate = () => {
+const addTemplate = (template) => {
   // 这里添加新增模板的逻辑，例如弹出输入框让用户输入模板内容
-  console.log('添加模板功能待实现');
+  console.log('添加模板功能待实现:', template);
+  taskInput.value = template.desc;
 };
 
 // 选择模型方法
@@ -198,8 +213,10 @@ const sendMessage = () => {
 
 const GetModelListByFunctionName = async () => {
   let req = {
-    function: "gen-ai-chat",
+    function: "gen-prompt",
     token: localStorage.getItem("token"),
+    temperature: temperature.value,
+    top_p: topP.value,
   };
   try{
     let result = await FindModelListByFunctionName(req);
@@ -245,6 +262,39 @@ const GetModelListByFunctionName = async () => {
 };
 
 GetModelListByFunctionName();
+
+const showSession = async () => {
+  //获取历史会话
+  let req = {
+    token: localStorage.getItem("token"),
+    type: "UserID",
+    session_type: 2, //提示词会话
+  };
+  let result = await FindSessionService(req);
+  if (result["code"] === 0) {
+    sessionList.value = result["data"];
+    console.log("session_list:", sessionList.value);
+  } else {
+    ElMessage.error(result["msg"]);
+  }
+  isShowSession.value = true;
+};
+
+const selectSession = async (session: Session) => {
+  let req = {
+      token: localStorage.getItem("token"),
+      session_id: session.ID,
+    };
+    let result = await GetMessageService(req);
+    if (result["code"] === 0) {
+      taskInput.value = result["data"][0].Msg;
+      resultPrompt.value = result["data"][1].Msg;
+      console.log("session_list:", result["data"]);
+    } else {
+      ElMessage.error(result["msg"]);
+    }
+
+};
 
 
 onUnmounted(() => {
