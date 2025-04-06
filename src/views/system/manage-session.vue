@@ -98,7 +98,8 @@ let columns = ref([
 const getData = async () => {
     let req={
         token: localStorage.getItem('token'),
-        type: "UserID"
+        type: "UserID",
+        session_type: 1,
     }
     let result = await FindSessionService(req);
     tableData.value = result.data;

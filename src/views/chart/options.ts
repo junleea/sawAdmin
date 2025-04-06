@@ -68,7 +68,7 @@ export const lineOptions = {
 export const pieOptions = {
     title: {
         text: '系统开发语言',
-        subtext: 'Fake Data',
+        subtext: '前后端',
         left: 'center',
     },
     tooltip: {
