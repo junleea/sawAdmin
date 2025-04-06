@@ -103,9 +103,10 @@
               <el-input
                 v-model="inputMessage"
                 type="textarea"
+                maxlength="5000"
                 style="border: 0"
                 :rows="5"
-                placeholder="输入消息..."
+                placeholder="输入ppt主题即要求...(如：制作一份关于人工智能的ppt),最多输入5000字"
                 @keyup.enter="sendMessage"
               />
               <!-- <el-text
@@ -132,7 +133,7 @@
                 :disabled="loading"
                 >生成ppt</el-button>
             </el-col>
-            <el-col :span="3" style="text-align: center">
+            <!-- <el-col :span="3" style="text-align: center">
               <el-select v-model="selectModel" placeholder="选择模型">
                 <el-option
                   v-for="item in ModelList"
@@ -141,7 +142,7 @@
                   :value="item.ID"
                 ></el-option>
               </el-select>
-            </el-col>
+            </el-col> -->
             <el-col :span="1" style="text-align: center">
               <el-button @click="handleSelectFileVisible"
                 ><el-icon><Files /></el-icon
@@ -149,11 +150,10 @@
             </el-col>
             <el-col :span="12" style="text-align: center">
               <el-tag
-                v-for="(file, index) in selectedFiles"
-                :key="index"
                 closable
-                @close="removeFile(index)"
-                >{{ file.UserFileName }}</el-tag
+                @close="removeFile(0)"
+                v-if="selectedFile"
+                >{{ selectedFile.UserFileName }}</el-tag
               >
             </el-col>
           </el-row>
@@ -161,55 +161,47 @@
       </div>
   
       <div>
-        <!-- 文件对话框 -->
-        <el-dialog
-          v-model="selectFileVisible"
-          title="从上传文件中选择"
-          width="50%"
+    <!-- 文件对话框 -->
+    <el-dialog
+            v-model="selectFileVisible"
+            title="从上传文件中选择"
+            width="50%"
         >
-          <el-input
-            placeholder="搜索文件"
-            v-model="searchFileQuery"
-            prefix-icon="el-icon-search"
-          />
-          <el-button @click="uploadMessageFile">上传文件</el-button>
-          <!-- 文件列表 -->
-          <div class="file-list">
-            <el-checkbox-group v-model="selectedFiles">
-              <el-checkbox
-                v-for="(item, index) in filteredFiles"
-                :key="index"
-                :label="item"
-              >
-                <span class="file-icon">
-                  <!-- 根据文件类型展示不同图标 -->
-                  <i
-                    v-if="item.UploadType === 'image'"
-                    class="el-icon-picture"
-                  ></i>
-                  <i
-                    v-else-if="item.UploadType === 'file'"
-                    class="el-icon-document"
-                  ></i>
-                  <!-- 可继续补充其他文件类型图标 -->
-                </span>
-                {{ item.UserFileName }}
-                <!-- <span class="file-time">{{ item.CreatedAt }}</span> -->
-              </el-checkbox>
-            </el-checkbox-group>
-          </div>
-          <!-- 底部状态栏和按钮 -->
-          <div class="footer-bar">
-            <span class="selected-count"
-              >已选 {{ selectedFiles.length }} 个文件</span
-            >
-            <el-button @click="selectFileVisible = false">取消</el-button>
-            <el-button type="primary" @click="handleSelectFileConfirm"
-              >确认添加({{ selectedFiles.length }})</el-button
-            >
-          </div>
+            <el-input
+                placeholder="搜索文件"
+                v-model="searchFileQuery"
+                prefix-icon="el-icon-search"
+            />
+            <el-button @click="uploadMessageFile">上传文件</el-button>
+            <!-- 文件列表 -->
+            <div class="file-list">
+                <el-radio-group v-model="selectedFile">
+                    <el-radio
+                        v-for="(item, index) in filteredFiles"
+                        :key="index"
+                        :label="item"
+                    >
+                        <span class="file-icon">
+                            <!-- 根据文件类型展示不同图标 -->
+                            <i v-if="item.UploadType === 'image'" class="el-icon-picture"></i>
+                            <i v-else-if="item.UploadType === 'file'" class="el-icon-document"></i>
+                            <!-- 可继续补充其他文件类型图标 -->
+                        </span>
+                        {{ item.UserFileName }}
+                        <!-- <span class="file-time">{{ item.CreatedAt }}</span> -->
+                    </el-radio>
+                </el-radio-group>
+            </div>
+            <!-- 底部状态栏和按钮 -->
+            <div class="footer-bar">
+                <span class="selected-count">已选 {{ selectedFile ? 1 : 0 }} 个文件</span>
+                <el-button @click="selectFileVisible = false">取消</el-button>
+                <el-button type="primary" @click="handleSelectFileConfirm">
+                    确认添加({{ selectedFile ? 1 : 0 }})
+                </el-button>
+            </div>
         </el-dialog>
-      </div>
+  </div>
       <!-- 上传文件对话框 -->
       <div>
         <el-dialog
@@ -308,6 +300,7 @@
   const selectFileVisible = ref(false); // 控制文件选择对话框的显示与隐藏
   const searchFileQuery = ref(""); // 用于搜索文件的查询条件
   const filteredFiles = ref<File[]>([]); // 用于存储过滤后的文件列表
+    const selectedFile = ref<File | null>(null); // 用于存储已选文件，改为单选
   const uploadFileVisible = ref(false); // 控制上传文件对话框的显示与隐藏
   const baseInfo = ref<BaseInfo>({
     user_id: 0,
@@ -336,11 +329,12 @@
     });
   };
   const removeFile = (index: number) => {
-    selectedFiles.value.splice(index, 1);
+    selectedFile .value = null; // 清空已选文件
   };
   
   const handleSelectFileVisible = async () => {
     await getFileListData(); // 获取文件列表
+    ElMessage.success("制作PPT当前只支持单文件！支持docx、doc、pdf、txt、md等格式的文件");
     console.log("selectedFiles:", selectedFiles.value);
     selectFileVisible.value = true; // 显示对话框
     console.log("handleSelectFileVisible:", selectFileVisible.value);
@@ -365,10 +359,11 @@
   };
   
   const handleSelectFileConfirm = () => {
-    // 处理选中的文件
-    console.log("选中的文件:", selectedFiles.value);
-    // 在这里可以进行文件上传或其他操作
-    selectFileVisible.value = false; // 关闭对话框
+    if (selectedFile.value) {
+        // 处理选择文件的逻辑
+        console.log("Selected file:", selectedFile.value);
+        selectFileVisible.value = false;
+    }
   };
   
   const doButtonD = () => {
@@ -440,19 +435,29 @@
       ElMessage.warning("当前会话已结束，创建ppt请新建会话");
       return;
     }
-    loading.value = true;
+    
 
     let req = {
         token: localStorage.getItem('token'),
         function: "spark-create-ppt",
         query: inputMessage.value,
-        fileUrl:  fileUrl + selectedFiles.value[0].file_store_name,
-        fileName: selectedFiles.value[0].UserFileName,
     }
+    if(selectedFile.value){
+      //查看文件类型是否为docx、doc、pdf、txt、md等格式的文件
+      let fileType = selectedFile.value.file_store_name.split('.').pop();
+      if (fileType !== "docx" && fileType !== "doc" && fileType !== "pdf" && fileType !== "txt" && fileType !== "md") {
+        ElMessage.warning("当前只支持docx、doc、pdf、txt、md等格式的文件");
+        return;
+      }
+
+        req["fileUrl"] = selectedFile.value.file_store_name;
+        req["fileName"] = selectedFile.value.UserFileName;
+    }
+    loading.value = true;
     let pMsgContent ="";
-    if (req.fileUrl) {
+    if (req["fileUrl"]) {
       //文件名和文件url
-      pMsgContent += `[${req.fileName}](${req.fileUrl})` + "\n";
+      pMsgContent += `[${req["fileUrl"]}](${req["fileUrl"]})` + "\n";
       pMsgContent = pMsgContent + req.query;
     } else {
       pMsgContent = req.query;
