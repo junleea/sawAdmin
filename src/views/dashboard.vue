@@ -197,7 +197,7 @@ const getDashBoardStatistics = async () => {
     };
     let result = await GetDashBoardStatisticsService(req);
     if (result['code'] === 0) {
-        console.log('dashboard:', result['data']);
+        // console.log('dashboard:', result['data']);
         baseInfo.value = result['data']["dashboard_statistics_st"];
         dashOpt2_.series[0].data = result['data']["dashboard_statistics_model_st"];
         let max_model = Math.max(...result['data']["dashboard_statistics_model_st"].map((item: any) => item.value));
@@ -210,7 +210,7 @@ const getDashBoardStatistics = async () => {
             };
         });
         ranks.value.sort((a, b) => b.value - a.value);
-        console.log('ranks:', ranks.value);
+        //console.log('ranks:', ranks.value);
         // 处理数据
         //过去一周会话、消息数
         let sessionData = result['data']["dashboard_statistics_week"]["session_count"];

@@ -245,6 +245,15 @@ interface ImageMessage {
   image_content: SendImageMessage[];
   text: string;
 }
+interface FileMessage {
+  file_content: File; //文件内容，文件内容的base64编码
+  file_type: string | null; //文件类型，文本类型，图片类型等，text_file,img_file等
+}
+
+interface GenerationMessage {
+  text: string;
+  file_content: FileMessage[];
+}
 
 const md = new MarkdownIt();
 md.use(markdownItHighlightjs, {
@@ -392,6 +401,9 @@ onMounted(() => {
     "wss://pm.ljsea.top/im/ai_chat_ws?" +
     "token=" +
     localStorage.getItem("token");
+  //获取模型列表
+  let test_url = "ws://127.0.0.1:8084/im/ai_chat_ws?" + "token=" + localStorage.getItem("token");
+  //url =test_url;
   socket.value = new WebSocket(url);
   socket.value.onopen = () => {
     console.log("WebSocket 连接已建立");
@@ -450,6 +462,8 @@ onUnmounted(() => {
 });
 
 const sendMessage = () => {
+  sendMessageWithFile()
+  return;
   if (inputMessage.value.trim() === "") {
     ElMessage.warning("消息不能为空");
     return;
@@ -512,6 +526,92 @@ const sendMessage = () => {
   }
 };
 
+
+const sendMessageWithFile = () => {
+  if (inputMessage.value.trim() === "") {
+    ElMessage.warning("消息不能为空");
+    return;
+  }
+  let end_msg = {
+    msg: inputMessage.value,
+    type: "ollama",
+    function: "gen-ai-chat",
+    session_id: sessionID.value,
+    model_id: selectModel.value,
+    temperature: temperature.value,
+    top_p: topP.value,
+  };
+  if (selectedFiles.value.length > 0) {
+    // 处理选中的文件
+    console.log("选中的文件:", selectedFiles.value);
+    let file_contents = []
+    let file_type= ""
+    for (let i = 0; i < selectedFiles.value.length; i++) {
+      let file: File = selectedFiles.value[i];
+      //图片文件：jpg、png、gif、bmp
+      if (file.UserFileName.endsWith(".jpg") || file.UserFileName.endsWith(".png") || file.UserFileName.endsWith(".gif") || file.UserFileName.endsWith(".bmp")) {
+        file_type = "image_file"
+      }else{
+        file_type = "text_file"
+      }
+      let file_msg: FileMessage = {
+        file_content: file,
+        file_type: file_type,
+      };
+      file_contents.push(file_msg);
+    }
+    let msg : GenerationMessage = {
+      text: inputMessage.value,
+      file_content: file_contents,
+    };
+    let msg_str = JSON.stringify(msg);
+    end_msg["msg"] = msg_str;
+    end_msg["is_file"] = true;
+  }
+  console.log("end_msg:", end_msg);
+
+  try {
+    socket.value.send(JSON.stringify(end_msg));
+    console.log("send msg:", end_msg);
+  } catch (e) {
+    ElMessage.error("发送失败!连接已断开！");
+    return;
+  }
+  if (sessionID.value == 0) {
+    sessionName.value = inputMessage.value;
+  }
+  let pMsgContent ="";
+  if (end_msg["is_file"]) {
+    let file_msg: GenerationMessage = JSON.parse(end_msg["msg"]);
+    //解析成md格式
+    let file_content= file_msg.file_content
+    for (let i = 0; i < file_content.length; i++) {
+      if(file_content[i].file_type == "image_file"){
+        pMsgContent += `![${file_content[i].file_content.UserFileName}](${ fileUrl + file_content[i].file_content.file_store_name})` + "\n\n";
+      }else{
+        pMsgContent += `文件：[${file_content[i].file_content.UserFileName}](${ fileUrl + file_content[i].file_content.file_store_name})` + "\n\n";
+      }
+      
+    }
+    // let img_content= img_msg.image_content
+    // for (let i = 0; i < img_content.length; i++) {
+    //   pMsgContent += `![${img_content[i].img_name}](${img_content[i].img_url})` + "\n";
+    // }
+    pMsgContent = pMsgContent + "输入：" + file_msg.text;
+  } else {
+    pMsgContent = end_msg.msg;
+  }
+  messages.push({ role: "user", content: pMsgContent, finished: true });
+  inputMessage.value = "";
+  nextTick(() => {
+    scrollToBottom(); // 新增滚动调用
+  });
+  loading.value = true;
+  if (sessionID.value == 0) {
+    sessionName.value = end_msg.msg;
+  }
+};
+
 const loadSession = async (session_id: number) => {
   sessionID.value = session_id;
   messages.length = 0; // 清空消息
@@ -564,6 +664,58 @@ const getMessage = async (session_id: number) => {
           let msg: GenMessage = data[i];
           let pMsgContent="";
           if (msg.Status == 3) {
+            let file_msg: GenerationMessage = JSON.parse(msg.Msg);
+            let file_content= file_msg.file_content
+            for (let i = 0; i < file_content.length; i++) {
+              if(file_content[i].file_type == "image_file"){
+                  pMsgContent += `![${file_content[i].file_content.UserFileName}](${ fileUrl + file_content[i].file_content.file_store_name})` + "\n\n";
+                }else{
+                  pMsgContent += `文件：[${file_content[i].file_content.UserFileName}](${ fileUrl + file_content[i].file_content.file_store_name})` + "\n\n";
+                }
+            }
+            pMsgContent = pMsgContent +  file_msg.text;
+          } else {
+            pMsgContent = msg.Msg;
+          }
+          messages.push({
+            role: "user",
+            content: pMsgContent,
+            finished: true,
+          });
+        } else if (data[i]["Type"] === 4) {
+          messages.push({
+            role: "assistant",
+            content: data[i]["Msg"],
+            finished: true,
+          });
+        } else {
+          console.log("未知消息类型");
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  return {};
+};
+
+
+const getMessageWithFile = async (session_id: number) => {
+  let result = {};
+  try {
+    let req = {
+      token: localStorage.getItem("token"),
+      session_id: session_id,
+    };
+    result = await GetMessageService(req);
+    if (result["code"] === 0) {
+      console.log(result["data"]);
+      let data = result["data"];
+      for (let i = 0; i < data.length; i++) {
+        if (data[i]["Type"] === 3) {
+          let msg: GenMessage = data[i];
+          let pMsgContent="";
+          if (msg.Status == 3) {
             let img_msg: ImageMessage = JSON.parse(msg.Msg);
             //解析成md格式
             let img_content= img_msg.image_content
@@ -595,6 +747,8 @@ const getMessage = async (session_id: number) => {
   }
   return {};
 };
+
+
 const copyMessage = (content: string) => {
   navigator.clipboard
     .writeText(content)

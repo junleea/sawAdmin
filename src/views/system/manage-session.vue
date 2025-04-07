@@ -41,7 +41,8 @@ import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
 import { FormOption, FormOptionList } from '@/types/form-option';
 
-const userRole = localStorage.getItem('role') == 'admin';
+// const userRole = localStorage.getItem('role') == 'admin';
+const userRole = ref(localStorage.getItem('role') == 'admin');
 const page = reactive({
     index: 1,
     size: 10,

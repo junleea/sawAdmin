@@ -256,12 +256,12 @@ export const dashOpt1 = {
                 ]),
             },
             smooth: true,
-            data: [120, 132, 301, 134, 90, 230, 210],
+            data: [],
         },
         {
             type: 'line',
             smooth: true,
-            data: [220, 122, 191, 234, 190, 130, 310],
+            data: [],
         },
     ],
 };
@@ -282,13 +282,7 @@ export const dashOpt2 = {
                 borderColor: '#fff',
                 borderWidth: 2,
             },
-            data: [
-                { value: 1048, name: '数码' },
-                { value: 735, name: '食品' },
-                { value: 580, name: '母婴' },
-                { value: 484, name: '家电' },
-                { value: 300, name: '运动' },
-            ],
+            data: [],
         },
     ],
 };

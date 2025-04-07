@@ -30,7 +30,6 @@ import { ElMessage } from 'element-plus';
 import { CirclePlusFilled } from '@element-plus/icons-vue';
 import { UserInfo } from '@/types/user';
 import { Model } from '@/types/model';
-import { fetchUserData } from '@/api';
 import {FindModelService} from "@/api/model";
 import {UpdateModelService} from "@/api/model";
 import {AddModelService} from "@/api/model";
@@ -39,9 +38,8 @@ import TableCustom from '@/components/table-custom.vue';
 import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
 import { FormOption, FormOptionList } from '@/types/form-option';
-import { number } from 'echarts';
 
-const userRole = localStorage.getItem('role') == 'admin';
+const userRole = ref(localStorage.getItem('role') == 'admin');
 
 // 查询相关
 const query = reactive({

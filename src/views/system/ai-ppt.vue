@@ -650,14 +650,15 @@ const CreateSparkPPTOutline = async () => {
 }
 
 const CreateSparkPPT = async () => {
+  console.log("CreateSparkPPT:", selectedFile.value);
     let req = {
         token: localStorage.getItem('token'),
         function: "spark-create-ppt",
         sessionId: sessionID.value,
         outline: createOutlineResp.value.data.outline,
         query: "生成PPT",
-        fileUrl:  fileUrl + selectedFiles.value[0].file_store_name,
-        fileName: selectedFiles.value[0].UserFileName,
+        fileUrl:  fileUrl + selectedFile.value.file_store_name,
+        fileName: selectedFile.value.UserFileName,
     }
     let result = await CreateSparkPPTService(req);
     let msg1 :MessageOutline = { role: "user", content: `[${req.fileName}](${req.fileUrl})` + "\n"+ req.query, finished: true, isOutline: true,outline: req.outline }
