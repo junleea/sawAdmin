@@ -5,7 +5,7 @@
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
                 :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit" :genOperate="handleGenOperate" :refresh="getData">
                 <template #toolbarBtn>
-                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">上传文件</el-button>
+                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true">上传文件</el-button>
                 </template>
             </TableCustom>
 
@@ -39,7 +39,7 @@ import TableSearch from '@/components/table-search.vue';
 import UploadFile from '@/components/upload-file.vue';
 import { FormOption, FormOptionList } from '@/types/form-option';
 
-const userRole = ref(localStorage.getItem('role') == 'admin');
+
 const page = reactive({
     index: 1,
     size: 10,

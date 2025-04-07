@@ -5,7 +5,7 @@
             <TableCustom :columns="columns" :tableData="tableData" :total="page.total" :viewFunc="handleView"
                 :delFunc="handleDelete" :page-change="changePage" :editFunc="handleEdit" :genOperate="handleGenOperate" :refresh="getData">
                 <template #toolbarBtn>
-                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true" v-if="userRole">新增</el-button>
+                    <el-button type="warning" :icon="CirclePlusFilled" @click="visible_add = true">新增</el-button>
                 </template>
             </TableCustom>
 
@@ -41,8 +41,6 @@ import TableDetail from '@/components/table-detail.vue';
 import TableSearch from '@/components/table-search.vue';
 import { FormOption, FormOptionList } from '@/types/form-option';
 
-// const userRole = localStorage.getItem('role') == 'admin';
-const userRole = ref(localStorage.getItem('role') == 'admin');
 const page = reactive({
     index: 1,
     size: 10,
