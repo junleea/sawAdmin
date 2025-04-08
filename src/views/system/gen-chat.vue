@@ -354,7 +354,7 @@ const doButtonD = () => {
     }
 
     // 获取代码类型
-    const codeType = codeBlock.className.replace("hljs ", "");
+    const codeType = codeBlock.className.replace("hljs", "");
     // 创建代码类型显示元素
     const codeTypeElement = document.createElement("span");
     codeTypeElement.textContent = codeType.split("-")[1];

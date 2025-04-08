@@ -169,12 +169,20 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "ucenter" */ '../views/pages/ucenter.vue'),
             },
             {
-                path: '/reco-topic',
-                name: 'reco-topic',
+                path: '/kbase-chat',
+                name: 'kbase-chat',
                 meta: {
                     title: '智能选题推荐',
                 },
-                component: () => import(/* webpackChunkName: "reco-topic" */ '../views/system/reco-topic.vue'),
+                component: () => import(/* webpackChunkName: "reco-topic" */ '../views/system/kbase-chat.vue'),
+            },
+            {
+                path: '/manage-kbase',
+                name: 'manage-kbase',
+                meta: {
+                    title: '知识库管理',
+                },
+                component: () => import(/* webpackChunkName: "manage-kbase" */ '../views/system/manage-kbase.vue'),
             },
             {
                 path: '/editor',

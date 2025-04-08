@@ -53,7 +53,12 @@ export const menuData: Menus[] = [
                 index: '/manage-file',
                 title: '文件管理',
             },
-            
+            {
+                id: '58',
+                pid: '1',
+                index: '/manage-kbase',
+                title: '知识库管理',
+            }
         ],
     },
     {
@@ -206,8 +211,8 @@ export const menuData: Menus[] = [
     {
         id: '9',
         icon: 'Files',
-        index: '/reco-topic',
-        title: '智能选题推荐',
+        index: '/kbase-chat',
+        title: '知识库交互',
     },
     {
         id: '53',
