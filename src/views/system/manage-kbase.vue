@@ -160,20 +160,30 @@ const visible = ref(false);
 const visible_add = ref(false);
 const isEdit = ref(false);
 const isAdd = ref(false);
-const rowData = ref({});
+const rowData = ref<KBase>();
 const handleEdit = async (row: KBase) => {
-    let data = row;
-    rowData.value = data;
-    if(typeof data.FileIDs === "string"){
-        console.log("edit_row_data:", rowData.value);
-        let file_ids = JSON.parse(data.FileIDs.toString())
-        let file_id_list = []
-        for (let i = 0; i < file_ids.length; i++) {
-            file_id_list.push(file_ids[i]["file_id"])
+    try {
+        let data = { ...row }; // 复制对象，避免修改原始数据
+        rowData.value = data;
+
+        if (typeof data.FileIDs === "string") {
+            console.log("edit_row_data:", rowData.value);
+            let file_ids = JSON.parse(data.FileIDs);
+            let file_id_list: string[] = [];
+
+            for (let i = 0; i < file_ids.length; i++) {
+                if (typeof file_ids[i] === 'object' && file_ids[i] !== null && 'file_id' in file_ids[i]) {
+                    file_id_list.push(file_ids[i].file_id);
+                }
+            }
+
+            console.log("file_id_list:", file_id_list);
+            rowData.value.FileIDs = file_id_list;
         }
-        console.log("file_id_list:", file_id_list)
-        rowData.value.FileIDs = file_id_list;
+    } catch (error) {
+        console.error('处理 FileIDs 时出现错误:', error);
     }
+
     isEdit.value = true;
     visible.value = true;
 };
