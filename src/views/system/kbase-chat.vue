@@ -101,16 +101,10 @@
                 >发送</el-button
               >
               <div>
-                <p>模型参数</p>
-                <el-slider v-model="temperature" :min="0" :max="1" :step="0.1"
-                  >temperature</el-slider
-                >
-                <el-slider
-                  v-model="topP"
-                  :min="0"
-                  :max="1"
-                  :step="0.1"
-                ></el-slider>
+                <el-radio-group v-model="selectedValue">
+                  <el-radio :label="1">query</el-radio>
+                  <el-radio :label="2">chat</el-radio>
+                </el-radio-group>
               </div>
             </el-col>
             <el-col :span="3" style="text-align: center">
@@ -287,6 +281,7 @@
   const ModelList = ref<Model[]>([]);
   const selectModel = ref(0);
   const temperature = ref(0.5);
+  const selectedValue = ref(1); // 默认选中query
   const topP = ref(0.9);
   const selectedFiles = ref<File[]>([]); // 用于存储已选文件
   const selectFileVisible = ref(false); // 控制文件选择对话框的显示与隐藏
@@ -392,7 +387,7 @@
     });
   };
   
-  onMounted(() => {
+  onMounted(async () => {
     // if (typeof window !== 'undefined') {
     //   // 浏览器环境
     //   md.use(markdownItMermaid);
@@ -414,6 +409,11 @@
   
     socket.value.onmessage = (event) => {
       let msg: WSMessage = JSON.parse(event.data);
+      if(msg.code === 150 || msg.code === 151){
+        ElMessage.error("知识库错误：" +msg.type)
+        loading.value = false;
+        return
+      }
       const existingMessage = messages.find(
         (msg) => msg.role === "assistant" && !msg.finished
       );
@@ -453,6 +453,11 @@
       socket.value = new WebSocket(url);
       console.error("WebSocket 发生错误:", error);
     };
+
+    await showSession(); //获取历史会话
+    //默认设置第一个会话
+    loadSession(historySessions.value[0]?.ID || 0);
+
   });
   
   onUnmounted(() => {
@@ -535,12 +540,19 @@
     let end_msg = {
       msg: inputMessage.value,
       type: "ollama",
-      function: "gen-ai-chat",
+      function: "kbase-chat",
       session_id: sessionID.value,
       model_id: selectModel.value,
       temperature: temperature.value,
       top_p: topP.value,
+      is_kbase: true,
+      kbase_type: "query",
     };
+    console.log("end_msg:", end_msg);
+    console.log("selectedValue:", selectedValue.value);
+    if (selectedValue.value == 2) {
+      end_msg["kbase_type"] = "chat";
+    }
     if (selectedFiles.value.length > 0) {
       // 处理选中的文件
       console.log("选中的文件:", selectedFiles.value);
@@ -642,8 +654,8 @@
     sessionIsShow.value = !sessionIsShow.value;
   };
   const getShortenedName = (name: string) => {
-    if (name.length > 10) {
-      return name.slice(0, 10) + "...";
+    if (name.length > 20) {
+      return name.slice(0, 20) + "...";
     }
     return name;
   };

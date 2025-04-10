@@ -95,7 +95,7 @@ const getData = async () => {
     }
     let result = await FindFunctionService(req);
     tableData.value = result.data;
-    page.total = result.data.length;
+    page.total = 12;
 };
 getData();
 

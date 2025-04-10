@@ -1,5 +1,6 @@
 
 export interface WSMessage {
+    code: number;
     type: string;
     msg: AIQMessage;
     session_id: number;
