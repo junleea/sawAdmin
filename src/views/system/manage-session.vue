@@ -87,10 +87,10 @@ let columns = ref([
     { prop: 'ID', label: '会话ID', width: 50 },
     { prop: 'Name', label: '会话名' ,width: 300},
     { prop: 'MsgCount', label: '消息数',width:50},
-    { prop: 'TokenUsage', label: '消耗token数',width:50},
+    { prop: 'TokenUsage', label: '消耗token数',width:150},
     { prop: "Context", label: "会话背景参数" ,width: 100},
-    { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 150 },
-    { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 150 },
+    { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 180 },
+    { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 180 },
     { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: true,label:"继续该会话"},gen: {show: false,label:"下载文件"}}},
 ])
 

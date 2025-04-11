@@ -79,8 +79,8 @@ let columns = ref([
     { prop: 'ID', label: '文件ID', width: 50 },
     { prop: 'UserFileName', label: '文件名' ,width: 300},
     { prop: "UploadType", label: "上传类型",width: 100},
-    { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 200 },
-    { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 200 },
+    { prop: 'CreatedAt', label: '创建时间',type: 'date',width: 220 },
+    { prop: 'UpdatedAt', label: '更新时间',type: 'date',width: 220 },
     { prop: 'operator', label: '操作' , operate: { view: false, edit: true, delete: true,push: {link: false,label:"继续该会话"} ,gen: {show: true,label:"下载文件"}},
          align: 'center', fixed: 'right' },
 ])

@@ -90,7 +90,7 @@
             <el-col :span="10">
                 <el-card :body-style="{ height: '400px' }" shadow="hover">
                     <template #header>
-                        <div class="content-title">饼状图</div>
+                        <div class="content-title"></div>
                     </template>
                     <v-chart class="schart" :option="pieOptions" />
                  </el-card>

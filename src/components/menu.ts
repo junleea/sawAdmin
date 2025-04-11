@@ -23,7 +23,7 @@ export const menuData: Menus[] = [
                 id: '52',
                 pid: '1',
                 index: '/manage-model',
-                title: '模型管理',
+                title: '模型推理接入点管理',
             },
             {
                 id: '54',
@@ -218,7 +218,7 @@ export const menuData: Menus[] = [
         id: '53',
         icon: 'ChatDotSquare',
         index: '/gen-chat',
-        title: '通用人机对话',
+        title: '通用智能交互',
     },
     {
         id: '55',

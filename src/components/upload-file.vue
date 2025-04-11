@@ -28,7 +28,7 @@ import { ElMessage } from 'element-plus';
 const handle = (rawFile: any) => {
     console.log(rawFile);
 };
-const allowedTypes = ['doc', 'docx', 'pdf', 'txt', 'png', 'jpg', 'jpeg','md', "epub"];
+const allowedTypes = ['doc', 'docx', 'pdf', 'txt', 'png', 'jpg', 'jpeg','md', "epub", 'go', 'java', 'py', 'js', 'html', 'css', 'json', 'xml', 'yaml', 'yml'];
 
 interface UploadData {
     upload_type: string;
@@ -65,7 +65,7 @@ const headers = {
         const fileExtension = file.name.split('.').pop().toLowerCase();
         const isAllowedType = allowedTypes.includes(fileExtension);
         if (!isAllowedType) {
-            ElMessage.error('不允许的文件类型，仅支持 doc, docx, pdf, txt, png, jpg, jpeg, md, epub 格式');
+            ElMessage.error('不允许的文件类型，仅支持 doc, docx, pdf, txt, png, jpg, jpeg, md, epub 及代码文本格式');
             return false;
           }
         // 可以在这里进行文件验证等操作

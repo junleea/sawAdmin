@@ -57,7 +57,7 @@
           >
             <div class="message-avatar">
               <span v-if="message.role === 'assistant'">💬</span>
-              <span v-else>👤</span>
+              <span v-else>🧑‍🎓</span>
             </div>
             <div class="message-content">
               <div v-html="renderMarkdown(message.content)"></div>
@@ -535,6 +535,10 @@
   const sendMessageWithFile = () => {
     if (inputMessage.value.trim() === "") {
       ElMessage.warning("消息不能为空");
+      return;
+    }
+    if(sessionID.value == 0){
+      ElMessage.warning("请先选择知识库!若果没有知识库，请先创建知识库!");
       return;
     }
     let end_msg = {

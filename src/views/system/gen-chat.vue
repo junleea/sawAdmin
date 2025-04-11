@@ -57,7 +57,7 @@
         >
           <div class="message-avatar">
             <span v-if="message.role === 'assistant'">💬</span>
-            <span v-else>👤</span>
+            <span v-else>🧑‍🎓</span>
           </div>
           <div class="message-content">
             <div v-html="renderMarkdown(message.content)"></div>

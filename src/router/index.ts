@@ -172,7 +172,7 @@ const routes: RouteRecordRaw[] = [
                 path: '/kbase-chat',
                 name: 'kbase-chat',
                 meta: {
-                    title: '智能选题推荐',
+                    title: '智能知识库',
                 },
                 component: () => import(/* webpackChunkName: "reco-topic" */ '../views/system/kbase-chat.vue'),
             },

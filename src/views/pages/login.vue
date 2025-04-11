@@ -62,7 +62,6 @@ import { ElMessage } from "element-plus";
 import { loginService } from "@/api/user";
 import { GetUserInfoService } from "@/api/user";
 import { usePermissStore } from "@/store/permiss";
-
 // 从本地存储获取登录参数
 const lgStr = localStorage.getItem("login-param");
 const defParam = lgStr ? JSON.parse(lgStr) : null;
