@@ -60,7 +60,7 @@
             <span v-else>🧑‍🎓</span>
           </div>
           <div class="message-content">
-            <div v-html="renderMarkdown(message.content)"></div>
+            <div v-html="renderMarkdown(message,index)"></div>
             <!-- 添加复制 -->
             <div>
               <el-button
@@ -293,9 +293,23 @@ const selectFileVisible = ref(false); // 控制文件选择对话框的显示与
 const searchFileQuery = ref(""); // 用于搜索文件的查询条件
 const filteredFiles = ref<File[]>([]); // 用于存储过滤后的文件列表
 const uploadFileVisible = ref(false); // 控制上传文件对话框的显示与隐藏
+const historyMsgHtml= ref([]); // 用于存储历史消息的HTML内容
 
-const renderMarkdown = (content: string) => {
-  return md.render(content);
+const renderMarkdown = (message: Message, index:number) => {
+  if(message.finished == false){
+    //console.log("not finished");
+    return message.content;
+  }
+  if(historyMsgHtml.value[index]){
+    //console.log("historyMsgHtml:", historyMsgHtml.value[index]);
+    //console.log("historyMsgHtml:", index);
+    //已经渲染过的消息，直接返回
+    return historyMsgHtml.value[index];
+  }
+  //console.log("new finish:");
+  const html = md.render(message.content);
+  historyMsgHtml.value.push(html);
+  return html;
 };
 
 const scrollToBottom = () => {
@@ -626,6 +640,7 @@ const loadSession = async (session_id: number) => {
 const clearCurrent = () => {
   sessionID.value = 0;
   messages.length = 0; // 清空消息
+  historyMsgHtml.value.length = 0; // 清空历史消息
   sessionName.value = "新会话";
   ElMessage.success("新会话已创建!可以开始聊天了");
 };
@@ -649,6 +664,7 @@ const getShortenedName = (name: string) => {
 };
 
 const getMessage = async (session_id: number) => {
+  historyMsgHtml.value.length = 0; // 清空历史消息
   let result = {};
   try {
     let req = {
