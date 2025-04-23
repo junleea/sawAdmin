@@ -29,7 +29,7 @@ const handle = (rawFile: any) => {
     console.log(rawFile);
 };
 const allowedTypes = ['doc', 'docx', 'pdf', 'txt', 'png', 'jpg', 'jpeg','md', "epub", 'go', 'java', 'py', 'js', 'html', 'css', 'json', 'xml', 'yaml', 'yml'];
-
+const userRole = localStorage.getItem('ms_role') || '';
 interface UploadData {
     upload_type: string;
     auth_type: string;
@@ -62,16 +62,26 @@ const headers = {
       };
   
       const beforeUpload = (file: any) => {
+        if(userRole == "admin"){
+        }
         const fileExtension = file.name.split('.').pop().toLowerCase();
         const isAllowedType = allowedTypes.includes(fileExtension);
-        if (!isAllowedType) {
+        if (!isAllowedType && userRole != "admin") {
             ElMessage.error('不允许的文件类型，仅支持 doc, docx, pdf, txt, png, jpg, jpeg, md, epub 及代码文本格式');
             return false;
-          }
+        }
+        if(!isAllowedType && userRole == "admin"){
+            //提示不允许的文件类型，是否继续上传,确认后继续上传
+            confirm('不允许的文件类型，是否继续上传？') ? isAllowedType : false;
+        }
         // 可以在这里进行文件验证等操作
         const isLt2M = file.size / 1024 / 1024 < 5;
-        if (!isLt2M) {
+        if (!isLt2M && userRole != "admin") {
           ElMessage.error('上传文件大小不能超过 5MB');
+        }
+        if(!isLt2M && userRole == "admin"){
+            //提示文件过大，是否继续上传,确认后继续上传
+            confirm('文件过大，是否继续上传？') ? isLt2M : false;
         }
         return isLt2M;
       };

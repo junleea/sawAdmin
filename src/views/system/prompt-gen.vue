@@ -63,12 +63,60 @@
                 </div>
               </div>
               <div class="model-params">
-                <h4>模型参数</h4>
-                <el-slider v-model="temperature" :min="0" :max="1" :step="0.1"></el-slider>
-                <div class="param-value">{{ temperature }}</div>
-                <el-slider v-model="topP" :min="0" :max="1" :step="0.1"></el-slider>
-                <div class="param-value">{{ topP }}</div>
-              </div>
+                  <h4>模型参数
+                    <el-tooltip 
+                        effect="dark" 
+                        placement="right"
+                        content="建议仅调整 temperature 或 top_p 其中之一，不建议两者都修改"
+                      >
+                        <el-icon class="tip-icon"><QuestionFilled /></el-icon>
+                      </el-tooltip>
+                  </h4>
+
+                  <!-- 温度参数 -->
+                  <div class="param-item">
+                    <div class="param-label">
+                      <span>温度 (Temperature)</span>
+                      <el-tooltip 
+                        effect="dark" 
+                        placement="right"
+                        content="采样温度，控制生成随机性（0: 保守，2: 随机）"
+                      >
+                        <el-icon class="tip-icon"><QuestionFilled /></el-icon>
+                      </el-tooltip>
+                    </div>
+                    <el-slider 
+                      v-model="temperature" 
+                      :min="0" 
+                      :max="2" 
+                      :step="0.1"
+                      :show-tooltip="false"
+                    />
+                    <div class="param-value">{{ temperature.toFixed(1) }}</div>
+                  </div>
+
+                  <!-- Top P 参数 -->
+                  <div class="param-item">
+                    <div class="param-label">
+                      <span>Top P</span>
+                      <el-tooltip 
+                        effect="dark" 
+                        placement="right"
+                        content="限制候选词范围（0: 严格，1: 宽松）"
+                      >
+                        <el-icon class="tip-icon"><QuestionFilled /></el-icon>
+                      </el-tooltip>
+                    </div>
+                    <el-slider 
+                      v-model="topP" 
+                      :min="0" 
+                      :max="1" 
+                      :step="0.1"
+                      :show-tooltip="false"
+                    />
+                    <div class="param-value">{{ topP.toFixed(1) }}</div>
+                  </div>
+                </div>
             </div>
           </template>
         </el-dropdown>
@@ -375,8 +423,35 @@ onUnmounted(() => {
 .model-params {
   margin-top: 10px;
 }
+
+
+.param-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #606266;
+}
+
+.tip-icon {
+  margin-left: 8px;
+  color: #909399;
+  cursor: help;
+}
+
 .param-value {
-  margin-top: 5px;
-  text-align: right;
+  margin-top: 8px;
+  text-align: center;
+  font-weight: bold;
+  color: #409eff;
+}
+
+/* 自定义滑块样式 */
+:deep(.el-slider__runway) {
+  height: 6px;
+}
+
+:deep(.el-slider__button) {
+  width: 16px;
+  height: 16px;
 }
 </style>

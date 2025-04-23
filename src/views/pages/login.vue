@@ -151,6 +151,7 @@ const getMyUserInfo = async (id) => {
             localStorage.setItem("ms_imgurl", result["data"]["Avatar"]);
         permiss.handleSet(keys);
         localStorage.setItem("ms_keys", JSON.stringify(keys));
+        localStorage.setItem("ms_role", result["data"]["Role"]);
         router.push("/");
 
       //alert("video_func:" + localStorage.getItem("video_func")+"    type:" +typeof(localStorage.getItem("video_func")));

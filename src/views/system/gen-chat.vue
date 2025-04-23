@@ -100,18 +100,75 @@
               :disabled="loading"
               >发送</el-button
             >
-            <div>
-              <p>模型参数</p>
-              <el-slider v-model="temperature" :min="0" :max="1" :step="0.1"
-                >temperature</el-slider
-              >
-              <el-slider
-                v-model="topP"
-                :min="0"
-                :max="1"
-                :step="0.1"
-              ></el-slider>
-            </div>
+            <el-dropdown trigger="click" class="model-dropdown">
+              <span class="el-dropdown-link">
+                <span>模型参数</span>
+                <el-icon><ArrowDown /></el-icon>
+              </span>
+              <template #dropdown>
+                <div class="dropdown-content">
+                  <div class="model-params">
+                  <h4>模型参数
+                    <el-tooltip 
+                        effect="dark" 
+                        placement="right"
+                        content="建议仅调整 temperature 或 top_p 其中之一，不建议两者都修改"
+                      >
+                        <el-icon class="tip-icon"><QuestionFilled /></el-icon>
+                      </el-tooltip>
+                  </h4>
+
+                  <!-- 温度参数 -->
+                  <div class="param-item">
+                    <div class="param-label">
+                      <span>温度 (Temperature)</span>
+                      <el-tooltip 
+                        effect="dark" 
+                        placement="right"
+                        content="采样温度，控制生成随机性（0: 保守，2: 随机）"
+                      >
+                        <el-icon class="tip-icon"><QuestionFilled /></el-icon>
+                      </el-tooltip>
+                    </div>
+                    <el-slider 
+                      v-model="temperature" 
+                      :min="0" 
+                      :max="2" 
+                      :step="0.1"
+                      :show-tooltip="false"
+                    />
+                    <div class="param-value">{{ temperature.toFixed(1) }}</div>
+                  </div>
+
+                  <!-- Top P 参数 -->
+                  <div class="param-item">
+                    <div class="param-label">
+                      <span>Top P</span>
+                      <el-tooltip 
+                        effect="dark" 
+                        placement="right"
+                        content="限制候选词范围（0: 严格，1: 宽松）"
+                      >
+                        <el-icon class="tip-icon"><QuestionFilled /></el-icon>
+                      </el-tooltip>
+                    </div>
+                    <el-slider 
+                      v-model="topP" 
+                      :min="0" 
+                      :max="1" 
+                      :step="0.1"
+                      :show-tooltip="false"
+                    />
+                    <div class="param-value">{{ topP.toFixed(1) }}</div>
+                  </div>
+                </div>
+                </div>
+              </template>
+            </el-dropdown>
+
+
+
+
           </el-col>
           <el-col :span="3" style="text-align: center">
             <el-select v-model="selectModel" placeholder="选择模型">
@@ -286,7 +343,7 @@ const sessionIsShow = ref(false);
 const sessionName = ref("");
 const ModelList = ref<Model[]>([]);
 const selectModel = ref(0);
-const temperature = ref(0.5);
+const temperature = ref(0.8);
 const topP = ref(0.9);
 const selectedFiles = ref<File[]>([]); // 用于存储已选文件
 const selectFileVisible = ref(false); // 控制文件选择对话框的显示与隐藏
@@ -999,5 +1056,56 @@ const getFileListData = async () => {
 }
 .el-icon-document {
   color: #409eff;
+}
+
+.model-dropdown {
+  margin-top: 10px;
+}
+
+.dropdown-content {
+  width: 400px;
+  padding: 10px;
+}
+
+.model-params {
+  margin-top: 10px;
+}
+.param-value {
+  margin-top: 5px;
+  text-align: right;
+}
+
+.param-item {
+  margin: 25px 0;
+}
+
+.param-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  color: #606266;
+}
+
+.tip-icon {
+  margin-left: 8px;
+  color: #909399;
+  cursor: help;
+}
+
+.param-value {
+  margin-top: 8px;
+  text-align: center;
+  font-weight: bold;
+  color: #409eff;
+}
+
+/* 自定义滑块样式 */
+:deep(.el-slider__runway) {
+  height: 6px;
+}
+
+:deep(.el-slider__button) {
+  width: 16px;
+  height: 16px;
 }
 </style>

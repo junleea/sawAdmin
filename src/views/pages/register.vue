@@ -111,6 +111,7 @@ const getMyUserInfo = async (id) => {
             permiss.defaultList[result["data"]["Role"] == "admin" ? "admin" : "user"];
         permiss.handleSet(keys);
         localStorage.setItem("ms_keys", JSON.stringify(keys));
+        localStorage.setItem("ms_role", result["data"]["Role"]);
         router.push("/");
 
       //alert("video_func:" + localStorage.getItem("video_func")+"    type:" +typeof(localStorage.getItem("video_func")));
